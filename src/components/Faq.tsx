@@ -47,9 +47,10 @@ const FAQComponent = () => {
     },
     {
       id: 4,
-      question: "Bagaimana saya bisa melatih otot?",
-      answer: "Istirahat yang cukup juga krusial untuk pemulihan dan pertumbuhan otot. Beri waktu 48 jam untuk setiap kelompok otot sebelum melatihnya kembali, dan pastikan tidur 7-8 jam per malam."
-    }
+      question: "How can I train my muscles?",
+      answer: "Adequate rest is also crucial for muscle recovery and growth. Give each muscle group 48 hours before training it again, and ensure you get 7-8 hours of sleep per night."
+
+}
   ];
 
   const toggleAccordion = (index: number) => {

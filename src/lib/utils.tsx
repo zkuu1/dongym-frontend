@@ -12,3 +12,21 @@ export function formatDate(date: string | Date | null | undefined) {
 
   return formatter.format(parsedDate);
 }
+
+export function formatPrice(price: any): string {
+  if (price === null || price === undefined || price === "") return "-";
+
+  // Hilangkan spasi & koma
+  const cleaned = String(price).replace(/[^\d]/g, "");
+
+  const numeric = Number(cleaned);
+  if (isNaN(numeric)) return "-";
+
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(numeric);
+}
+
+

@@ -76,9 +76,9 @@ const WheyProducts = () => {
                     {product.unit}
                   </p>
 
-                  <button className="w-full mt-4 bg-gradient-to-r from-base_semi_purple to-base_purple hover:from-purple-700 hover:to-purple-800 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">
+                  {/* <button className="w-full mt-4 bg-gradient-to-r from-base_semi_purple to-base_purple hover:from-purple-700 hover:to-purple-800 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">
                     Add to Cart
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </motion.div>

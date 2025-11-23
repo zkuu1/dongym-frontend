@@ -2,45 +2,40 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getUsers } from "@/lib/data";
 
+import { updateAbsensiById } from "@/lib/api";
 
-
-type EditFormProps = {
-  user: {
-    id: string;
-    name: string | null;
-    email?: string | null;
-    role: string | null;
-    membershipId: string | null;
-    membership?: {
-      status: string | null;
-      startDate: string | null;
-      endDate: string | null;
-    } | null;
-  };
-};
+interface EditFormProps {
+  user: any;
+}
 
 export default function EditUserForm({ user }: EditFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-const [formData, setFormData] = useState({
-  name: user.name ?? "",
-  role: user.role ?? "user",
-  membershipId: user.membershipId ?? "",
-  status: user.membership?.status ?? "nonactive",
-  startDate: user.membership?.startDate
-    ? new Date(user.membership.startDate).toISOString().split("T")[0]
-    : "",
-  endDate: user.membership?.endDate
-    ? new Date(user.membership.endDate).toISOString().split("T")[0]
-    : "",
-});
+  const [formData, setFormData] = useState({
+    id: user.id || "",
+    name: user.name || "",
+    email: user.email || "",
+    role: user.role || "user",
+    image: user.image || "",
+    address: user.address || "",
+    token: user.token || "",
+    membership: {
+      status: user.membership?.status ?? "nonactive",
+      startDate: user.membership?.startDate
+        ? new Date(user.membership.startDate).toISOString().split("T")[0]
+        : "",
+      endDate: user.membership?.endDate
+        ? new Date(user.membership.endDate).toISOString().split("T")[0]
+        : "",
+    },
+    createdAt: user.createdAt || "",
+  });
 
-
+  // Menghandle perubahan input biasa
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -50,30 +45,44 @@ const [formData, setFormData] = useState({
     });
   };
 
+  // Menghandle perubahan membership
+  const handleMembershipChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setFormData({
+      ...formData,
+      membership: {
+        ...formData.membership,
+        [e.target.name]: e.target.value,
+      },
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(`/api/admin/edit/${user.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        image: formData.image,
+        address: formData.address,
+        token: formData.token,
+        membership: formData.membership,
+      };
 
-      const result = await res.json();
+      const result = await updateUserByid(formData.id, payload);
 
-      if (!res.ok) {
-        toast.error(result.message || "Gagal update user");
-      } else {
-        toast.success("User berhasil diupdate!");
-        setTimeout(() => {
-          router.push("/admin");
-          router.refresh();
-        }, 1500);
-      }
-    } catch (err) {
-      toast.error("Terjadi kesalahan jaringan");
+      toast.success("User berhasil diupdate!");
+
+      setTimeout(() => {
+        router.push("/admin");
+        router.refresh();
+      }, 1200);
+    } catch (error: any) {
+      toast.error(error?.message || "Gagal update user!");
     } finally {
       setIsSubmitting(false);
     }
@@ -81,147 +90,150 @@ const [formData, setFormData] = useState({
 
   return (
     <div>
-      <ToastContainer
-        position="top-center"
-        autoClose={1500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
+      <ToastContainer position="top-center" autoClose={1500} theme="dark" />
 
       <form
-  id="edit-user-form"
-  onSubmit={handleSubmit}
-  className="grid grid-cols-1 lg:grid-cols-2 gap-6"
->
-  {/* Kiri */}
-  <div className="space-y-6">
-    {/* Name */}
-    <div>
-      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-        Nama Lengkap
-      </label>
-      <input
-        type="text"
-        id="name"
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        className="w-full p-2 border border-gray-300 rounded text-black"
-        required
-      />
-    </div>
-
-    {/* Role */}
-    <div>
-      <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-        Role
-      </label>
-      <select
-        id="role"
-        name="role"
-        value={formData.role}
-        onChange={handleChange}
-        className="w-full p-2 border border-gray-300 rounded text-black"
-        required
+        id="edit-user-form"
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
+        {/* Left */}
+        <div className="space-y-6">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Nama</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            />
+          </div>
 
-    {/* Membership ID */}
-    <div>
-      <label
-        htmlFor="membershipId"
-        className="block text-sm font-medium text-gray-700 mb-1"
-      >
-        Membership ID
-      </label>
-      <input
-        type="number"
-        id="membershipId"
-        name="membershipId"
-        value={formData.membershipId || ""}
-        onChange={handleChange}
-        className="w-full p-2 border border-gray-300 rounded text-black"
-        placeholder="Kosongkan jika tidak ada"
-      />
-    </div>
-  </div>
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            />
+          </div>
 
-  {/* Kanan */}
-  <div className="space-y-6">
-    {/* Start Date */}
-    <div>
-      <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-        Tanggal Mulai
-      </label>
-      <input
-        type="date"
-        id="startDate"
-        name="startDate"
-        value={formData.startDate || ""}
-        onChange={handleChange}
-        className="w-full p-2 border border-gray-300 rounded text-black"
-      />
-    </div>
+          {/* Role */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Role</label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
 
-    {/* End Date */}
-    <div>
-      <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
-        Tanggal Selesai
-      </label>
-      <input
-        type="date"
-        id="endDate"
-        name="endDate"
-        value={formData.endDate || ""}
-        onChange={handleChange}
-        className="w-full p-2 border border-gray-300 rounded text-black"
-      />
-    </div>
+          {/* Image */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Image URL</label>
+            <input
+              type="text"
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            />
+          </div>
 
-    {/* Status */}
-    <div>
-      <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-        Status Membership
-      </label>
-      <select
-        id="status"
-        name="status"
-        value={formData.status}
-        onChange={handleChange}
-        className="w-full p-2 border border-gray-300 rounded text-black"
-      >
-        <option value="active">Active</option>
-        <option value="nonactive">Nonactive</option>
-      </select>
-    </div>
-  </div>
+          {/* Address */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Alamat</label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            />
+          </div>
+        </div>
 
-  {/* Buttons bawah */}
-  <div className="lg:col-span-2 flex justify-end space-x-3">
-    <button
-      type="button"
-      onClick={() => router.push("/admin")}
-      className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 text-sm"
-    >
-      Batal
-    </button>
-    <button
-      type="submit"
-      className="px-4 py-2 bg-base_purple text-white rounded hover:bg-purple-700 disabled:bg-purple-400 text-sm"
-      disabled={isSubmitting}
-    >
-      {isSubmitting ? "Updating..." : "Update User"}
-    </button>
-  </div>
-</form>
-</div>
+        {/* Right */}
+        <div className="space-y-6">
+          {/* Membership Start Date */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Tanggal Mulai</label>
+            <input
+              type="date"
+              name="startDate"
+              value={formData.membership.startDate}
+              onChange={handleMembershipChange}
+              className="w-full p-2 border rounded text-black"
+            />
+          </div>
+
+          {/* Membership End Date */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Tanggal Selesai</label>
+            <input
+              type="date"
+              name="endDate"
+              value={formData.membership.endDate}
+              onChange={handleMembershipChange}
+              className="w-full p-2 border rounded text-black"
+            />
+          </div>
+
+          {/* Membership Status */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Status Membership</label>
+            <select
+              name="status"
+              value={formData.membership.status}
+              onChange={handleMembershipChange}
+              className="w-full p-2 border rounded text-black"
+            >
+              <option value="active">Active</option>
+              <option value="nonactive">Nonactive</option>
+            </select>
+          </div>
+
+          {/* Token */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Token</label>
+            <input
+              type="text"
+              name="token"
+              value={formData.token}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            />
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="lg:col-span-2 flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={() => router.push("/admin")}
+            className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+          >
+            Batal
+          </button>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-base_purple text-white rounded hover:bg-purple-700 disabled:bg-purple-400"
+          >
+            {isSubmitting ? "Updating..." : "Update User"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

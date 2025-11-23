@@ -47,7 +47,7 @@ const GallerySlider = () => {
       >
        <motion.div className="text-center mb-16" variants={itemVariants}>
           <h2 className="text-5xl md:text-6xl font-bold text-white">
-            Category <span className="text-base_purple">Sec</span>tion
+            Gallery <span className="text-base_purple">Sec</span>tion
           </h2>
       <motion.div
           className="w-24 h-1 bg-base_purple mx-auto mt-6"

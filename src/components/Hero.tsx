@@ -23,7 +23,7 @@ const HeroSection = () => {
           alt="Gym Background"
           layout="fill"
           objectFit="cover"
-          className="opacity-40"
+          className="opacity-1"
         />
       </motion.div>
 

@@ -4,6 +4,7 @@ import MemberCard from "@/components/Member"
 import WheyProducts from "@/components/Product"
 import GallerySlider from "@/components/Gallery"
 import FAQComponent from "@/components/Faq"
+import HeroSection from "@/components/Hero"
 
 
 
@@ -37,6 +38,7 @@ export default function Muscle () {
 
   return (
     <div className="">
+      <HeroSection/>
       <CategorySection />
       {/* <FindUsSection /> */}
       <MemberCard />
