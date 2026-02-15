@@ -3,30 +3,18 @@
 import { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
 import Image from "next/image";
+import { containerVariants, itemVariants, dividerVariants } from "@/data/motion/GalleryMotion";
+import { Galleryimages } from "@/data/GalleryData";
 
-import Lobby from "@/images/lobby.jpg";
-import Place from "@/images/place.jpg";
-import MainHall from "@/images/main_hall.jpg";
-import BackHall from "@/images/back_hall.jpg";
-import { containerVariants, itemVariants, dividerVariants } from "@/utils/motion";
-
-
-const GallerySlider = () => {
-  const images = [
-    { id: 1, name: "Inside Room", kategori: "Don Gym", image: Lobby },
-    { id: 2, name: "Main Room", kategori: "Don Gym", image: Place },
-    { id: 3, name: "Mirror & Treadmill Room", kategori: "Don Gym", image: MainHall },
-    { id: 4, name: "Legpress Room", kategori: "Don Gym", image: BackHall },
-  ];
-
+export default function Gallery() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === Galleryimages.length - 1 ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? Galleryimages.length - 1 : prev - 1));
   };
 
   useEffect(() => {
@@ -72,7 +60,7 @@ const GallerySlider = () => {
               className="flex transition-transform duration-700 ease-in-out"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-              {images.map((item) => (
+              {Galleryimages.map((item) => (
                 <div
                   key={item.id}
                   className="w-full flex-shrink-0 relative"
@@ -137,7 +125,7 @@ const GallerySlider = () => {
 
           {/* Indicators */}
           <div className="flex justify-center mt-6 space-x-3">
-            {images.map((_, index) => (
+            {Galleryimages.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
@@ -153,6 +141,4 @@ const GallerySlider = () => {
       </motion.div>
     </section>
   );
-};
-
-export default GallerySlider;
+}

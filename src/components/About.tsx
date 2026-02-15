@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import image1 from "../../src/images/lobby.jpg";
-import image2 from "../../src/images/place.jpg";
-import image3 from "../../src/images/lobby_2.jpg";
+import image1 from "../../src/images/about/bodyBuilder2.png";
+import image2 from "../../src/images/about/bodyBuilder.png";
+import image3 from "../../src/images/about/bodyBuilder3.png";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants, dividerVariants } from "@/utils/motion";
 

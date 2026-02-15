@@ -1,40 +1,12 @@
 "use client";
 
-import { motion, Variants } from "framer-motion";
+import {
+  containerVariants,
+  itemVariants,
+  dividerVariants
+} from "@/data/motion/MemberMotion"
 
-const containerVariants: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.3,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      ease: [0.16, 1, 0.3, 1],
-      duration: 0.5,
-    },
-  },
-};
-
-const dividerVariants: Variants = {
-  hidden: { scaleX: 0 },
-  show: {
-    scaleX: 1,
-    transition: {
-      ease: [0.16, 1, 0.3, 1],
-      duration: 0.8,
-      delay: 0.5,
-    },
-  },
-};
+import { motion } from "framer-motion"
 
 export default function MemberCard() {
   return (

@@ -2,17 +2,10 @@
 
 import Image from "next/image";
 import { motion, Variants } from "framer-motion";
-import Whey from "@/images/products/whey.jpg";
-import { containerVariants, itemVariants, dividerVariants, cardVariants } from "@/utils/motion";
+import { containerVariants, itemVariants, dividerVariants, cardVariants } from "@/data/motion/ProductMotion";
+import { products } from "@/data/ProductData";
 
-const WheyProducts = () => {
-  const products = [
-    { id: 1, name: "WHEY PROTEIN", price: "Rp.12.000", unit: "per scope", image: Whey },
-    { id: 2, name: "WHEY PROTEIN", price: "Rp.12.000", unit: "per scope", image: Whey },
-    { id: 3, name: "WHEY PROTEIN", price: "Rp.12.000", unit: "per scope", image: Whey },
-    { id: 4, name: "WHEY PROTEIN", price: "Rp.12.000", unit: "per scope", image: Whey },
-  ];
-
+export default function Product() {
   return (
     <section className="min-h-screen bg-black py-20">
       <motion.div
@@ -120,6 +113,4 @@ const WheyProducts = () => {
       </motion.div>
     </section>
   );
-};
-
-export default WheyProducts;
+}

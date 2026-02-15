@@ -2,7 +2,7 @@
 
 import { motion, Variants } from "framer-motion";
 import { FaUsers, FaImages, FaPills, FaQuestionCircle } from "react-icons/fa";
-import { containerVariants, itemVariants, dividerVariants, cardVariants } from "@/utils/motion";
+import { containerVariants, itemVariants, dividerVariants, cardVariants } from "@/data/motion/CategoryMotion";
 
 const categories = [
   {

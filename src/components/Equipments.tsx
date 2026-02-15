@@ -2,119 +2,15 @@
 
 import { Variants, motion } from "framer-motion";
 import Image from "next/image";
-import Treadmill from '../images/treadmill.jpg'
+import {
+  containerVariants,
+  itemVariants,
+  titleVariants,
+  dividerVariants,
+  cardVariants
+} from "@/data/motion/EquipmentMotion"
+import { equipmentItems } from "@/data/EquipementData";
 
-// Animation variants with proper typing
-const containerVariants: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.3,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      ease: [0.16, 1, 0.3, 1], // Using an ease array instead of string
-      duration: 0.5,
-    },
-  },
-};
-
-const titleVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      ease: [0.16, 1, 0.3, 1],
-      duration: 0.8,
-    },
-  },
-};
-
-const dividerVariants: Variants = {
-  hidden: { scaleX: 0 },
-  show: {
-    scaleX: 1,
-    transition: {
-      ease: [0.16, 1, 0.3, 1],
-      duration: 0.8,
-      delay: 0.5,
-    },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: 0.1 * i,
-      duration: 0.6,
-      ease: [0.34, 1.56, 0.64, 1], // "backOut" equivalent
-    },
-  }),
-};
-
-const equipmentItems = [
-  {
-    id: 1,
-    name: "Cable Row",
-    description: "High-performance running machine",
-    image: Treadmill,
-  },
-  {
-    id: 2,
-    name: "Dumbbells",
-    description: "Adjustable weight set",
-    image: Treadmill,
-  },
-  {
-    id: 3,
-    name: "treadmill",
-    description: "Cardio cycling machine",
-   image: Treadmill,
-  },
-  {
-    id: 4,
-    name: "Bench Press",
-    description: "Non-slip premium mat",
-     image: Treadmill,
-  },
-  {
-     id: 5,
-    name: "Cable Pulldown",
-    description: "High-performance running machine",
-    image: Treadmill,
-  },
-  {
-    id: 6,
-    name: "Butterfly Machine",
-    description: "Adjustable weight set",
-    image: Treadmill,
-  },
-  {
-    id: 7,
-    name: "Lat Pulldown",
-    description: "Cardio cycling machine",
-   image: Treadmill,
-  },
-  {
-    id: 8,
-    name: "High row machine",
-    description: "Non-slip premium mat",
-     image: Treadmill,
-
-  }
-];
 
 export default function FitnessEquipment() {
   return (

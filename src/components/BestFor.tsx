@@ -1,37 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
-import Treadmill from "../images/treadmill.jpg";
-import { containerVariants, itemVariants } from "@/utils/motion";
+import { containerVariants, itemVariants } from "@/data/motion/BestForMotion";
+import { Items } from "@/data/BestForData";
 
 const BestForSection = () => {
-  const equipmentItems = [
-    {
-      id: 1,
-      title: "1K+",
-      subtitle: "Active Members",
-      description: "Trusted by many to support their fitness journey",
-    },
-    {
-      id: 2,
-      title: "25+",
-      subtitle: "Fitness Equipment",
-      description: "High-performance running machines with incline options",
-    },
-    {
-      id: 3,
-      title: "90%",
-      subtitle: "Satisfied Customers",
-      description: "We prioritize customer satisfaction with our services",
-    },
-  ];
-
-  
-
   return (
     <section className="py-20 bg-black">
-  <div className="max-w-7xl mx-auto px-4"> {/* ✅ samakan dengan Category */}
+  <div className="max-w-7xl mx-auto px-4"> 
     {/* Section Title */}
     <motion.div
       className="text-center mb-16"
@@ -75,7 +51,7 @@ const BestForSection = () => {
           md:grid md:grid-cols-3 md:gap-6 md:overflow-x-visible
         "
       >
-        {equipmentItems.map((item) => (
+        {Items.map((item) => (
           <motion.div
             key={item.id}
             className="min-w-[250px] md:min-w-0 bg-base_purple rounded-xl overflow-hidden shadow-lg border-2 border-white"
