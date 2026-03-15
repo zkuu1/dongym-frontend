@@ -6,13 +6,13 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      
+    <div className="flex min-h-screen bg-gray-950">
+
       {/* Sidebar */}
       <AdminSidebar />
 
       {/* Content */}
-      <main className="flex-1 min-h-screen p-6">
+      <main className="flex-1 p-8 ml-64">
         {children}
       </main>
 

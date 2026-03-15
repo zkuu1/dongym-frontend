@@ -1,9 +1,11 @@
 import LoginPage from "../../auth/form-login"
+import Cookies from "js-cookie";
 
-const RegisterPage = () => {
+const LoginPages = () => {
   return(
     <LoginPage />
+    
   )
 }
 
-export default RegisterPage
+export default LoginPages

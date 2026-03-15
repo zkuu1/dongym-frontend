@@ -7,6 +7,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import GoogleSigninButton from "@/components/GoogleSigninButton";
 import GithubSigninButton from "@/components/GithubSigninButton";
 import { signIn } from "next-auth/react";
+import { loginUser } from "@/data/api/userApi";
+import type { LoginPayload } from "@/types/userInterface";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,25 +16,60 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError("");
 
-    const res = await signIn("credentials", {
-      redirect: false,
+  try {
+    const payload: LoginPayload = {
       email,
       password,
-    });
+    };
 
-    if (res?.error) {
-      setError("Email atau password salah");
+    console.log("Payload yang dikirim:", payload);
+
+    const res = await loginUser(payload);
+
+    console.log("Response dari API:", res);
+
+    if (!res.success) {
+      setError(res.message);
+      console.log("Login gagal:", res.message);
       return;
     }
 
-    // kalau berhasil
-    router.push("/user");
-  };
+    const user = res.data.data;
+    const token = res.data.data.token;
+
+    console.log("User data:", user);
+    console.log("Token:", token);
+    console.log(res)
+    console.log(res.data)
+    console.log(res.data.token)
+
+    // simpan ke localStorage
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+
+    document.cookie = `token=${token}; path=/; max-age=86400`;
+
+    setSuccess(res.message);
+     setTimeout(() => {
+        router.push("/user");
+      }, 1000);
+
+    console.log("Login berhasil:", res.message);
+   
+
+    
+
+  } catch (err: any) {
+    console.log("Error login:", err);
+    setError(err.message);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 mt-14">

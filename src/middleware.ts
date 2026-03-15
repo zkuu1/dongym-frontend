@@ -1,41 +1,58 @@
-// middleware.ts
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { jwtDecode } from "jwt-decode"
 
-export default withAuth(
-  function middleware(req) {
-    const { pathname } = req.nextUrl;
-    const token = req.nextauth.token;
+type TokenPayload = {
+  id: number;
+  name: string;
+  role: string;
+};
 
-    // Kalau belum login, block akses ke /admin dan /user
-    if (!token && (pathname.startsWith("/admin") || pathname.startsWith("/user"))) {
-      return NextResponse.redirect(new URL("/not-found", req.url));
-    }
+export function middleware(request: NextRequest) {
 
-    // Cek role untuk /admin
-    if (pathname.startsWith("/admin")) {
-      if (token?.role !== "admin") {
-        return NextResponse.redirect(new URL("/not-found", req.url));
-      }
-    }
+  const token = request.cookies.get("token")?.value;
+  const { pathname } = request.nextUrl;
 
-    // Cek role untuk /user
-    if (pathname.startsWith("/user")) {
-      if (token?.role !== "user") {
-        return NextResponse.redirect(new URL("/not-found", req.url));
-      }
-    }
+  const isAuthPage =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register");
 
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: () => true, // biar next-auth nggak auto redirect
-    },
+  const isAdminPage = pathname.startsWith("/admin");
+  const isUserPage = pathname.startsWith("/user");
+
+  if (!token && (isAdminPage || isUserPage)) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
-);
 
-// Tentukan route yang kena middleware
+  if (token) {
+
+    const decoded = jwtDecode<TokenPayload>(token);
+    const role = decoded.role;
+
+    // hanya admin boleh ke /admin
+    if (isAdminPage && role !== "admin") {
+      return NextResponse.redirect(new URL("/user", request.url));
+    }
+
+    // hanya user boleh ke /user
+    if (isUserPage && role !== "user") {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    if (isAuthPage) {
+      return NextResponse.redirect(new URL("/user", request.url));
+    }
+
+  }
+
+  return NextResponse.next();
+}
+
 export const config = {
-  matcher: ["/admin/:path*", "/user/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/user/:path*",
+    "/login",
+    "/register"
+  ],
 };

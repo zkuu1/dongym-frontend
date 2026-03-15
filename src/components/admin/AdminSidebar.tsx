@@ -11,6 +11,8 @@ import {
   Settings,
   Menu,
   X,
+  ChartSpline,
+  ChartBarStacked
 } from "lucide-react";
 
 const menuItems = [
@@ -21,18 +23,23 @@ const menuItems = [
   },
   {
     title: "Members",
-    href: "/admin/members",
+    href: "/admin/user",
     icon: Users,
   },
   {
-    title: "Packages",
-    href: "/admin/packages",
+    title: "Product",
+    href: "/admin/product",
     icon: Dumbbell,
   },
   {
-    title: "Payments",
-    href: "/admin/payments",
-    icon: CreditCard,
+    title: "Category",
+    href: "/admin/category",
+    icon: ChartBarStacked,
+  },
+  {
+    title: "Tracking",
+    href: "/admin/tracking",
+    icon: ChartSpline,
   },
   {
     title: "Settings",

@@ -1,8 +1,7 @@
 
 import { cookies } from "next/headers";
-import Usertable from "./components/table/userTable";
-import Membershiptable from "./components/table/membershipTable";
-import ProductPage from "./product/page";
+import Usertable from "../components/table/userTable";
+import Membershiptable from "../components/table/membershipTable";
 
 export default async function AdminPage() {
 
@@ -15,9 +14,10 @@ export default async function AdminPage() {
   return (
 
     <div className="">
-       <h1>
-       
-       </h1>
+          <Usertable/>
+         <div className="mt-10">
+             <Membershiptable/>
+         </div>
          
     </div>
    
