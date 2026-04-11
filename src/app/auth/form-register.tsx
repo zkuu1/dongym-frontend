@@ -5,7 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import GoogleSigninButton from "@/components/GoogleSigninButton";
 import GithubSigninButton from "@/components/GithubSigninButton";
 import { useRouter } from "next/navigation";
-import { createUser } from "@/data/api/userApi";
+import { registerUser } from "@/data/api/userApi";
 import type { RegisterPayload } from "@/types/userInterface";
 
 export default function RegisterPage() {
@@ -18,12 +18,14 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
+    setIsLoading(true);
     try {
       const payload: RegisterPayload = {
         name,
@@ -32,7 +34,7 @@ export default function RegisterPage() {
         address
       };
 
-      const res = await createUser(payload);
+      const res = await registerUser(payload);
 
       if (!res.success) {
         setError(res.message || "Registrasi gagal");
@@ -53,6 +55,8 @@ export default function RegisterPage() {
 
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -174,15 +178,15 @@ export default function RegisterPage() {
                  {/* Email */}
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">
-                    Adress
+                    Address
                   </label>
 
                   <div className="relative">
                     <input
-                      type="address"
+                      type="text"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 text-gray-800 rounded-lg border border-gray-300 pr-10 focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-4 py-3 bg-gray-50 text-gray-800 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500"
                       placeholder="Enter your address"
                       required
                     />
@@ -194,9 +198,10 @@ export default function RegisterPage() {
                 {/* BUTTON */}
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-bold py-3 rounded-xl hover:from-purple-700 hover:to-indigo-800 transition"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-bold py-3 rounded-xl hover:from-purple-700 hover:to-indigo-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Register
+                  {isLoading ? "Registering..." : "Register"}
                 </button>
               </form>
 

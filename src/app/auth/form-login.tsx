@@ -16,63 +16,58 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("")
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
-  try {
-    const payload: LoginPayload = {
-      email,
-      password,
-    };
-
-    console.log("Payload yang dikirim:", payload);
-
-    const res = await loginUser(payload);
-
-    console.log("Response dari API:", res);
-
-    if (!res.success) {
-      setError(res.message);
-      console.log("Login gagal:", res.message);
+    // Validasi dasar: pastikan tidak kosong
+    if (!email.trim()) {
+      setError("Email tidak boleh kosong.");
+      return;
+    }
+    if (!password.trim()) {
+      setError("Password tidak boleh kosong.");
       return;
     }
 
-    const user = res.data.data;
-    const token = res.data.data.token;
+    setIsLoading(true);
 
-    console.log("User data:", user);
-    console.log("Token:", token);
-    console.log(res)
-    console.log(res.data)
-    console.log(res.data.token)
+    try {
+      const payload: LoginPayload = { email, password };
+      const res = await loginUser(payload);
 
-    // simpan ke localStorage
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
+      if (!res.success) {
+        setError(res.message || "Login gagal.");
+        return;
+      }
 
-    document.cookie = `token=${token}; path=/; max-age=86400`;
+      const user = res.data.data;
+      const token = res.data.data.token;
 
-    setSuccess(res.message);
-     setTimeout(() => {
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      document.cookie = `token=${token}; path=/; max-age=86400`;
+
+      setSuccess("Login berhasil! Mengalihkan...");
+      setTimeout(() => {
         router.push("/user");
       }, 1000);
 
-    console.log("Login berhasil:", res.message);
-   
+    } catch (err: any) {
+      // Tampilkan pesan langsung dari backend (ex: "Invalid email or password")
+      setError(err.message || "Login gagal. Silakan coba lagi.");
 
-    
-
-  } catch (err: any) {
-    console.log("Error login:", err);
-    setError(err.message);
-  }
-};
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 mt-14">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4 mt-14 overflow-hidden">
       <div className="max-w-6xl w-full bg-white/10 backdrop-blur-lg rounded-3xl overflow-hidden shadow-2xl border border-white/20">
         <div className="flex flex-col md:flex-row">
           {/* Welcome Section - Left */}
@@ -103,7 +98,17 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <p className="text-red-600 text-center mb-4">{error}</p>
+                <div className="flex items-start gap-3 bg-red-50 border border-red-300 text-red-700 rounded-xl px-4 py-3 mb-4 animate-pulse">
+                  <span className="text-red-500 mt-0.5 text-lg">⚠️</span>
+                  <p className="text-sm font-medium">{error}</p>
+                </div>
+              )}
+
+              {success && (
+                <div className="flex items-start gap-3 bg-green-50 border border-green-300 text-green-700 rounded-xl px-4 py-3 mb-4">
+                  <span className="text-green-500 mt-0.5 text-lg">✅</span>
+                  <p className="text-sm font-medium">{success}</p>
+                </div>
               )}
 
               <div className="relative mb-8">
@@ -170,9 +175,10 @@ export default function LoginPage() {
                 {/* Submit */}
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Login
+                  {isLoading ? "Logging in..." : "Login"}
                 </button>
               </form>
 

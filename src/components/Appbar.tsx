@@ -1,30 +1,42 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // ✅ ambil path aktif
-import { useSession, signOut } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation"; 
 import Image from "next/image";
+import { getUser, logout } from "@/utils/auth";
+import { User as UserIcon, LogOut, ChevronDown, LayoutDashboard, ShieldCheck } from "lucide-react";
 
 const Appbar = () => {
-  const { data: session } = useSession();
+  const [user, setUser] = useState<any>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname(); 
+  const router = useRouter();
 
-  const pathname = usePathname(); // ✅ path aktif
+  useEffect(() => {
+    const syncUser = () => {
+      const currentUser = getUser();
+      setUser(currentUser);
+    };
 
-  const isAdmin = session?.user?.role === "admin";
-  const isLogin = session?.user?.role === "user";
+    syncUser();
+    window.addEventListener("storage", syncUser);
+    return () => window.removeEventListener("storage", syncUser);
+  }, [pathname]);
+
+  const isAdmin = user?.role === "admin";
+  const isMember = user?.role === "user";
 
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/muscle", label: "Hit The Muscle" },
-    { href: "/about", label: "About Us" },
+    { href: "/about", label: "About" },
     { href: "/others", label: "Others" },
   ];
 
   return (
-    <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-screen-md bg-base_purple opacity-75 py-3 shadow backdrop-blur-lg md:top-6 md:rounded-3xl lg:max-w-screen-lg">
+    <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-screen-xl bg-base_purple/80 py-3 shadow-xl backdrop-blur-xl md:top-6 md:rounded-[2rem] lg:px-6">
       <div className="px-4">
         <div className="flex items-center justify-between">
           {/* Hamburger menu (mobile) */}
@@ -77,16 +89,17 @@ const Appbar = () => {
                   </Link>
                 ))}
 
-                {isLogin && (
+                {isMember && (
                   <Link
                     href="/user"
-                    className={`px-4 py-2 transition ${
-                      pathname === "/user"
-                        ? "bg-white text-gray-900"
-                        : "text-white hover:bg-purple-700"
+                    className={`px-4 py-3 flex items-center gap-3 transition-all ${
+                      pathname.startsWith("/user")
+                        ? "bg-white text-gray-900 font-bold"
+                        : "text-white hover:bg-white/10"
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
+                    <LayoutDashboard size={18} />
                     Dashboard
                   </Link>
                 )}
@@ -94,26 +107,30 @@ const Appbar = () => {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className={`px-4 py-2 transition ${
-                      pathname === "/admin"
-                        ? "bg-white text-gray-900"
-                        : "text-white hover:bg-purple-700"
+                    className={`px-4 py-3 flex items-center gap-3 transition-all ${
+                      pathname.startsWith("/admin")
+                        ? "bg-white text-gray-900 font-bold"
+                        : "text-white hover:bg-white/10"
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Admin
+                    <ShieldCheck size={18} />
+                    Admin Panel
                   </Link>
                 )}
 
-                {session ? (
+                {user ? (
                   <button
                     onClick={() => {
-                      signOut();
+                      logout();
+                      setUser(null);
                       setIsMobileMenuOpen(false);
+                      router.push("/");
                     }}
-                    className="px-4 py-2 text-left text-white hover:bg-purple-700"
+                    className="px-4 py-3 flex items-center gap-3 text-red-400 hover:bg-red-500/10 font-bold transition-all text-left"
                   >
-                    Logout
+                    <LogOut size={18} />
+                    Keluar (Logout)
                   </button>
                 ) : (
                   <>
@@ -146,7 +163,7 @@ const Appbar = () => {
           )}
 
           {/* Desktop nav */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex md:items-center md:gap-5">
+          <div className="hidden md:flex flex-1 items-center justify-center gap-2 lg:gap-5">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -164,25 +181,27 @@ const Appbar = () => {
             {isAdmin && (
               <Link
                 href="/admin"
-                className={`inline-block rounded-lg px-2 py-1 text-sm font-medium transition-all duration-200 ${
-                  pathname === "/admin"
-                    ? "bg-white text-gray-900"
-                    : "text-white hover:bg-gray-100 hover:text-gray-900"
+                className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all duration-300 ${
+                  pathname.startsWith("/admin")
+                    ? "bg-white text-violet-600 shadow-lg shadow-white/20"
+                    : "text-white hover:bg-white/10"
                 }`}
               >
-                Admin
+                <ShieldCheck size={16} />
+                Admin Panel
               </Link>
             )}
 
-            {isLogin && (
+            {isMember && (
               <Link
                 href="/user"
-                className={`inline-block rounded-lg px-2 py-1 text-sm font-medium transition-all duration-200 ${
-                  pathname === "/user"
-                    ? "bg-white text-gray-900"
-                    : "text-white hover:bg-gray-100 hover:text-gray-900"
+                className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all duration-300 ${
+                  pathname.startsWith("/user")
+                    ? "bg-white text-violet-600 shadow-lg shadow-white/20"
+                    : "text-white hover:bg-white/10"
                 }`}
               >
+                <LayoutDashboard size={16} />
                 Dashboard
               </Link>
             )}
@@ -190,54 +209,63 @@ const Appbar = () => {
 
           {/* Auth (desktop kanan) */}
           <div className="flex items-center justify-end gap-3">
-            {session ? (
+            {user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-3 p-1.5 pr-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all group"
                 >
-                  <span className="text-white font-medium hidden sm:inline">
-                    {session.user?.name}
-                  </span>
-                  <div className="h-8 w-8 rounded-full overflow-hidden">
-                    <Image
-                      src={session.user?.image || "/default-avatar.png"}
-                      alt={session.user?.name || "User avatar"}
-                      width={32}
-                      height={32}
-                      className="object-cover"
-                    />
+                  <div className="h-9 w-9 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg group-hover:scale-105 transition-transform bg-gray-600 flex items-center justify-center">
+                    {user.image && !user.image.includes("image.com") ? (
+                      <Image
+                        src={user.image}
+                        alt={user.name}
+                        width={36}
+                        height={36}
+                        className="object-cover h-full w-full"
+                      />
+                    ) : (
+                      <UserIcon size={20} className="text-white" />
+                    )}
                   </div>
+                  <div className="hidden sm:flex flex-col items-start leading-tight">
+                    <span className="text-white text-xs font-bold truncate max-w-[80px]">
+                      {user.name}
+                    </span>
+                    <span className="text-blue-300 text-[10px] uppercase tracking-wider font-bold">
+                      {user.role}
+                    </span>
+                  </div>
+                  <ChevronDown size={14} className={`text-white/60 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-3 w-56 bg-gray-900 border border-white/10 rounded-2xl shadow-2xl py-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-4 py-3 border-b border-white/5 mb-1">
+                      <p className="text-xs text-gray-400">Signed in as</p>
+                      <p className="text-sm text-white font-bold truncate">{user.email}</p>
+                    </div>
+
                     <Link
-                      href="/user"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      href={isAdmin ? "/admin/settings" : "/user/profile"}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      Dashboard
+                      <UserIcon size={16} />
+                      Pengaturan Profil
                     </Link>
-
-                    {isAdmin && (
-                      <Link
-                        href="/admin"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsDropdownOpen(false)}
-                      >
-                        Admin
-                      </Link>
-                    )}
 
                     <button
                       onClick={() => {
-                        signOut();
+                        logout();
+                        setUser(null);
                         setIsDropdownOpen(false);
+                        router.push("/");
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors border-t border-white/5 mt-1"
                     >
-                      Logout
+                      <LogOut size={16} />
+                      Keluar (Logout)
                     </button>
                   </div>
                 )}

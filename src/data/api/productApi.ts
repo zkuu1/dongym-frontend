@@ -1,47 +1,41 @@
 /* ===========================
-   GLOBAL AXIOS CONFIG
+   PRODUCT API
 =========================== */
 import axios from "axios";
 
 const API = process.env.NEXT_PUBLIC_BASE_API;
 
-/* Normalized Response Types */
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return { Authorization: `Bearer ${token}` };
+};
+
 interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T | null;
 }
 
-/* ===========================
-   product API
-=========================== */
-
-// GET ALL productS
+// GET ALL PRODUCTS — public
 export const getAllProduct = async () => {
   try {
-    const res = await axios.get(`${API}api/product`, { timeout: 10000 }); // 10 detik timeout
-    console.log(res);
+    const res = await axios.get(`${API}api/product`);
     return res.data;
   } catch (error: any) {
-    console.log("FULL ERROR:", error);
-    console.log("ERROR RESPONSE:", error.response);
-    console.log("ERROR DATA:", error.response?.data);
     throw new Error(error.response?.data?.message || "Failed to get products");
   }
 };
 
-// SEARCH product BY ID
+// GET PRODUCT BY ID — public
 export const searchProductById = async (id: string): Promise<ApiResponse<any>> => {
   try {
     const response = await axios.get(`${API}api/product/${id}`);
-
     return {
       success: true,
       message: response.data?.message || "Success get product by ID",
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    console.error("searchproductById ERROR:", error.response?.status, error.response?.data);
     return {
       success: false,
       message: error.response?.data?.message || "Failed to get product by ID",
@@ -50,11 +44,10 @@ export const searchProductById = async (id: string): Promise<ApiResponse<any>> =
   }
 };
 
-// SEARCH product BY KEYWORD (name/email)
+// SEARCH PRODUCT BY KEYWORD — public
 export const searchProduct = async (keyword: string): Promise<ApiResponse<any>> => {
   try {
     const response = await axios.get(`${API}api/product/search/${keyword}`);
-
     return {
       success: true,
       message: "Success search product",
@@ -69,14 +62,15 @@ export const searchProduct = async (keyword: string): Promise<ApiResponse<any>> 
   }
 };
 
-
-// CREATE product / register
+// CREATE PRODUCT — protected
 export const createProduct = async (payload: any): Promise<ApiResponse<any>> => {
   try {
-    const response = await axios.post(`${API}api/product`, payload);
+    const response = await axios.post(`${API}api/product`, payload, {
+      headers: getAuthHeader(),
+    });
     return {
       success: true,
-      message: response.data?.message || "product created",
+      message: response.data?.message || "Product created",
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
@@ -84,17 +78,18 @@ export const createProduct = async (payload: any): Promise<ApiResponse<any>> => 
   }
 };
 
-
-// UPDATE product
+// UPDATE PRODUCT — protected
 export const updateProductById = async (
   id: string,
   payload: any
 ): Promise<ApiResponse<any>> => {
   try {
-    const response = await axios.patch(`${API}api/product/update/${id}`, payload);
+    const response = await axios.patch(`${API}api/product/${id}`, payload, {
+      headers: getAuthHeader(),
+    });
     return {
       success: true,
-      message: response.data?.message || "product updated",
+      message: response.data?.message || "Product updated",
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
@@ -102,19 +97,18 @@ export const updateProductById = async (
   }
 };
 
-// DELETE product
-export const deleteproductById = async (id: string): Promise<ApiResponse<any>> => {
+// DELETE PRODUCT — protected
+export const deleteProductById = async (id: string): Promise<ApiResponse<any>> => {
   try {
-    const response = await axios.delete(`${API}api/product/delete/${id}`);
+    const response = await axios.delete(`${API}api/product/${id}`, {
+      headers: getAuthHeader(),
+    });
     return {
       success: true,
-      message: response.data?.message || "product deleted",
+      message: response.data?.message || "Product deleted",
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to delete product");
   }
 };
-
-
-

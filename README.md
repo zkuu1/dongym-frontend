@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Don Gym - Frontend Dashboard
 
-## Getting Started
+Don Gym adalah aplikasi manajemen fitness modern yang dibangun menggunakan **Next.js 15 (App Router)**. Aplikasi ini dirancang untuk memberikan pengalaman pengguna yang premium bagi Admin maupun Member, dengan fitur manajemen data yang lengkap dan desain yang futuristik.
 
-First, run the development server:
+## 🚀 Fitur Utama
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Role-Based Navigation**: Perbedaan tampilan dan akses menu otomatis antara Admin dan Member.
+- **Admin Dashboard**: Statistik pengunjung, manajemen produk, membership, dan riwayat presensi.
+- **User Dashboard**: Overview profil, riwayat komentar, dan pengaturan akun mandiri.
+- **Premium UI**: Desain berbasis Glassmorphism dengan skema warna Midnight Blue & Indigo.
+- **Responsive Design**: Optimal untuk perangkat mobile, tablet, dan desktop.
+
+## 📂 Struktur Projek
+
+```text
+src/
+├── app/                  # Routing & Layout (Next.js App Router)
+│   ├── (admin)/          # Grouping rute khusus Administrator
+│   ├── (main)/           # Halaman publik (Hero, Products, dll)
+│   ├── (user)/           # Grouping rute khusus Member
+│   ├── auth/             # Halaman Login & Register
+│   └── globals.css       # Core styling & UI Tokens
+├── components/           # Komponen UI Reusable (Navbar, Sidebar, Cards)
+├── data/
+│   └── api/              # Axios instance & Fetching logic per modul
+├── lib/                  # Konfigurasi library eksternal (Prisma, etc)
+├── types/                # Definisi TypeScript Interfaces
+└── utils/                # Fungsi pembantu (Auth, Formatters, Validasi)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Dependensi Utama
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Core
+- **Next.js**: Framework React untuk produksi.
+- **React & React DOM**: Library inti antarmuka.
+- **TypeScript**: Superset JavaScript untuk pengetikan statis yang aman.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Styling & Animation
+- **Tailwind CSS**: Framework CSS berbasis utility untuk desain cepat.
+- **Framer Motion**: Library animasi untuk transisi halaman dan micro-interactions.
+- **Lucide React & React Icons**: Kumpulan ikon SVG yang konsisten dan modern.
 
-## Learn More
+### Data & State Management
+- **Axios**: Klien HTTP berbasis promise untuk komunikasi dengan backend.
+- **Recharts**: Library chart untuk visualisasi data statistik di dashboard.
 
-To learn more about Next.js, take a look at the following resources:
+### Authentication
+- **js-cookie**: Library ringan untuk manajemen cookie (Token storage).
+- **jwt-decode**: Mendecode payload JWT untuk sinkronisasi data user.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📥 Instalasi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+1. Clone repositori ini.
+2. Instal dependensi:
+   ```bash
+   npm install
+   ```
+3. Atur variabel lingkungan di `.env.local`:
+   ```text
+   NEXT_PUBLIC_BASE_API=http://localhost:3000/
+   ```
+4. Jalankan aplikasi dalam mode pengembangan:
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
