@@ -49,7 +49,7 @@ export default function AdminUserPage() {
     email: "",
     password: "",
     address: "",
-    role: "USER",
+    role: "user",
   })
 
   const fetchUsers = async () => {
@@ -69,7 +69,7 @@ export default function AdminUserPage() {
   }, [])
 
   const openCreate = () => {
-    setForm({ name: "", email: "", password: "", address: "", role: "USER" })
+    setForm({ name: "", email: "", password: "", address: "", role: "user" })
     setError("")
     setModalMode("create")
   }
@@ -261,13 +261,13 @@ export default function AdminUserPage() {
                     <td className="px-5 py-4 text-gray-400 text-sm">{user.address || "—"}</td>
                     <td className="px-5 py-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          user.role === "ADMIN" || user.role === "admin"
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider ${
+                          user.role?.toLowerCase() === "admin"
                             ? "bg-red-500/15 text-red-400 border border-red-500/30"
                             : "bg-blue-500/15 text-blue-400 border border-blue-500/30"
                         }`}
                       >
-                        {user.role === "ADMIN" || user.role === "admin" ? (
+                        {user.role?.toLowerCase() === "admin" ? (
                           <ShieldCheck size={12} />
                         ) : (
                           <User size={12} />
@@ -399,12 +399,12 @@ export default function AdminUserPage() {
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Role</label>
                       <select
-                        value={form.role}
+                        value={form.role?.toLowerCase()}
                         onChange={(e) => setForm({ ...form, role: e.target.value })}
                         className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-violet-500 transition"
                       >
-                        <option value="USER">USER</option>
-                        <option value="ADMIN">ADMIN</option>
+                        <option value="user">USER</option>
+                        <option value="admin">ADMIN</option>
                       </select>
                     </div>
                   )}

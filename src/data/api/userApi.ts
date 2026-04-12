@@ -1,6 +1,4 @@
-/* ===========================
-   GLOBAL AXIOS CONFIG
-=========================== */
+
 import axios from "axios";
 
 const API = process.env.NEXT_PUBLIC_BASE_API;
@@ -18,9 +16,6 @@ interface ApiResponse<T> {
   data: T | null;
 }
 
-/* ===========================
-   USER API
-=========================== */
 
 // GET ALL USERS — protected
 export const getAllUser = async () => {
@@ -37,7 +32,9 @@ export const getAllUser = async () => {
 // SEARCH USER BY ID
 export const searchUserById = async (id: string): Promise<ApiResponse<any>> => {
   try {
-    const response = await axios.get(`${API}api/user/${id}`);
+    const response = await axios.get(`${API}api/user/${id}`, {
+      headers: getAuthHeader(),
+    });
     return {
       success: true,
       message: response.data?.message || "Success get user by ID",
@@ -55,7 +52,9 @@ export const searchUserById = async (id: string): Promise<ApiResponse<any>> => {
 // SEARCH USER BY KEYWORD (name/email)
 export const searchUser = async (keyword: string): Promise<ApiResponse<any>> => {
   try {
-    const response = await axios.get(`${API}api/user/search/${keyword}`);
+    const response = await axios.get(`${API}api/user/search/${keyword}`, {
+      headers: getAuthHeader(),
+    });
     return {
       success: true,
       message: "Success search user",

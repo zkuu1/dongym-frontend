@@ -301,7 +301,15 @@ export default function AdminMembershipPage() {
                   </div>
                   <div>
                     <label className="block text-sm text-gray-400 mb-1">Nama Paket / Tipe</label>
-                    <input type="text" placeholder="Contoh: Gold Member" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
+                    <select 
+                      value={form.name} 
+                      onChange={e => setForm({ ...form, name: e.target.value })} 
+                      className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
+                    >
+                      <option value="">— Pilih Paket —</option>
+                      <option value="Non Member">Non Member</option>
+                      <option value="Member">Member</option>
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm text-gray-400 mb-1">Deskripsi</label>
@@ -310,7 +318,7 @@ export default function AdminMembershipPage() {
                   <div className="flex gap-3">
                     <div className="flex-1">
                       <label className="block text-sm text-gray-400 mb-1">No Member</label>
-                      <input type="text" placeholder="GM-001" value={form.noMember} onChange={e => setForm({ ...form, noMember: e.target.value })} className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition uppercase" />
+                      <input type="text" placeholder="1111" value={form.noMember} onChange={e => setForm({ ...form, noMember: e.target.value })} className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition uppercase" />
                     </div>
                     <div className="flex-1">
                       <label className="block text-sm text-gray-400 mb-1">Berlaku Hingga</label>

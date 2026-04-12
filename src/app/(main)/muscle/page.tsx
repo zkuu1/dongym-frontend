@@ -12,7 +12,6 @@ export default function Muscle () {
       <CategorySection />
       {/* <FindUsSection /> */}
       <MemberCard />
-      <WheyProducts />
        <GallerySlider/>  
        <FAQComponent/>
 

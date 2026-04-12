@@ -116,10 +116,6 @@ export default function LoginPage() {
               </div>
 
               <div className="relative mb-8">
-                <GithubSigninButton />
-              </div>
-
-              <div className="relative mb-8">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
@@ -198,7 +194,7 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-gray-800 p-4 text-center text-gray-300 text-sm">
-          <p>Copyright © DON GYM FITNESS 2025. All rights reserved.</p>
+          <p>Copyright © DON GYM FITNESS 2026. All rights reserved.</p>
         </div>
       </div>
     </div>

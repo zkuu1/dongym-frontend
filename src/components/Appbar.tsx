@@ -25,8 +25,8 @@ const Appbar = () => {
     return () => window.removeEventListener("storage", syncUser);
   }, [pathname]);
 
-  const isAdmin = user?.role === "admin";
-  const isMember = user?.role === "user";
+  const isAdmin = user?.role?.toLowerCase() === "admin";
+  const isMember = user?.role?.toLowerCase() === "user";
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -247,7 +247,7 @@ const Appbar = () => {
                     </div>
 
                     <Link
-                      href={isAdmin ? "/admin/settings" : "/user/profile"}
+                      href={isAdmin ? "/admin/settings" : "/user"}
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
@@ -276,17 +276,17 @@ const Appbar = () => {
                   href="/register"
                   className={`hidden sm:inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 transition-all duration-150 ${
                     pathname === "/register"
-                      ? "bg-white text-base_purple"
-                      : "text-white hover:bg-purple-200"
+                      ? "bg-purple-700 text-white"
+                      : "bg-purple text-white hover:bg-purple-200"
                   }`}
                 >
                   Sign Up
                 </Link>
                 <Link
                   href="/login"
-                  className={`inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold shadow-sm transition-all duration-150 ${
+                  className={`inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 shadow-sm transition-all duration-150 ${
                     pathname === "/login"
-                      ? "bg-white text-base_purple"
+                      ? "bg-purple-700 text-white"
                       : "bg-white text-base_purple hover:bg-purple-200"
                   }`}
                 >

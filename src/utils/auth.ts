@@ -1,6 +1,9 @@
+import Cookies from "js-cookie";
+
 export const getToken = () => {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("token");
+  // Check localStorage first, then cookies
+  return localStorage.getItem("token") || Cookies.get("token");
 };
 
 export const getUser = () => {
@@ -15,5 +18,5 @@ export const logout = () => {
   localStorage.removeItem("user");
 
   // Hapus cookie token agar middleware mendeteksi logout
-  document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
+  Cookies.remove("token", { path: "/" });
 };

@@ -98,11 +98,7 @@ export default function RegisterPage() {
               <div className="mb-6">
                 <GoogleSigninButton />
               </div>
-
-              <div className="mb-6">
-                <GithubSigninButton />
-              </div>
-
+              
               <div className="relative mt-4 mb-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300"></div>
@@ -220,7 +216,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="bg-gray-800 p-4 text-center text-gray-300 text-sm">
-          Copyright © DON GYM FITNESS 2025. All rights reserved.
+          Copyright © DON GYM FITNESS 2026. All rights reserved.
         </div>
 
       </div>

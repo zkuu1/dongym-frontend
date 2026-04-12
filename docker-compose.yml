@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dongym-frontend
+    ports:
+      - "3001:3000" # Di-mapping ke 3001 agar tidak tabrakan dengan backend (jika backend jalan di port 3000)
+    env_file:
+      - .env
+    restart: unless-stopped
+    # volume /app/node_modules dikosongkan agar menghindari konflik dengan module hasil build di host mesin
+    # namun tidak perlu wajib jika build standalone.

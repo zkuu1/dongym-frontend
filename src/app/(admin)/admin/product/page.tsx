@@ -16,6 +16,7 @@ import {
   Search,
   Loader2,
   ShoppingBag,
+  Heart,
 } from "lucide-react"
 
 type ProductData = {
@@ -27,6 +28,7 @@ type ProductData = {
   stock: number
   idCategory?: string | number
   category?: { id: string | number; name: string }
+  likeCount?: number
 }
 
 type CategoryData = { id: string; name: string }
@@ -100,7 +102,7 @@ export default function AdminProductPage() {
       if (form.image instanceof File) formData.append("image", form.image)
       formData.append("price", String(form.price))
       formData.append("stock", String(form.stock))
-      formData.append("category_id", String(form.idCategory))
+      formData.append("idCategory", String(form.idCategory))
 
       await createProduct(formData)
       setSuccess("Produk berhasil dibuat!")
@@ -119,7 +121,7 @@ export default function AdminProductPage() {
       if (form.image instanceof File) formData.append("image", form.image)
       formData.append("price", String(form.price))
       formData.append("stock", String(form.stock))
-      formData.append("category_id", String(form.idCategory))
+      formData.append("idCategory", String(form.idCategory))
 
       await updateProductById(String(selected.id), formData)
       setSuccess("Produk berhasil diupdate!")
@@ -175,14 +177,15 @@ export default function AdminProductPage() {
                 <th className="px-5 py-3.5 text-left">Harga</th>
                 <th className="px-5 py-3.5 text-left">Stok</th>
                 <th className="px-5 py-3.5 text-left">Kategori</th>
+                <th className="px-5 py-3.5 text-left">Likes</th>
                 <th className="px-5 py-3.5 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
               {loading ? (
-                <tr><td colSpan={7} className="py-16 text-center"><Loader2 size={28} className="animate-spin text-blue-400 mx-auto" /></td></tr>
+                <tr><td colSpan={8} className="py-16 text-center"><Loader2 size={28} className="animate-spin text-blue-400 mx-auto" /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} className="py-16 text-center text-gray-500">
+                <tr><td colSpan={8} className="py-16 text-center text-gray-500">
                   <ShoppingBag size={40} className="mx-auto mb-3 opacity-30" />
                   <p>Tidak ada produk ditemukan.</p>
                 </td></tr>
@@ -216,6 +219,12 @@ export default function AdminProductPage() {
                   </td>
                   <td className="px-5 py-4 text-gray-400 text-sm">
                     {categories.find(c => String(c.id) === String(p.idCategory))?.name ?? p.category?.name ?? "—"}
+                  </td>
+                  <td className="px-5 py-4 text-gray-400 text-sm">
+                    <div className="flex items-center gap-1.5 text-red-500/80 font-bold">
+                       <Heart size={14} fill="currentColor" />
+                       {p.likeCount || 0}
+                    </div>
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-center gap-2">

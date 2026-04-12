@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { jwtDecode } from "jwt-decode";
 import { 
   User, 
   MessageSquare, 
@@ -20,17 +21,26 @@ import {
   Clock,
   Home
 } from "lucide-react";
-import { getUser, logout } from "@/utils/auth";
+import { getUser, logout, getToken } from "@/utils/auth";
 import { getMyComments, deleteComment } from "@/data/api/commentApi";
-import { updateUserById } from "@/data/api/userApi";
+import { updateUserById, searchUserById } from "@/data/api/userApi";
+import { getMyLikes } from "@/data/api/likeApi";
+import { getMyFavourites } from "@/data/api/favouriteApi";
+import { Heart, Bookmark } from "lucide-react";
 
 export default function UserDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [comments, setComments] = useState<any[]>([]);
+  const [likes, setLikes] = useState<any[]>([]);
+  const [favourites, setFavourites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: number | null }>({
+    isOpen: false,
+    id: null,
+  });
 
   // States for Settings Form
   const [formData, setFormData] = useState({
@@ -46,7 +56,23 @@ export default function UserDashboard() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const currentUser = getUser();
+      let currentUser = getUser();
+      const token = getToken();
+
+      if (!currentUser && token) {
+        try {
+          const decoded = jwtDecode<any>(token);
+          const userRes = await searchUserById(decoded.id.toString());
+          if (userRes.success && userRes.data) {
+            currentUser = { ...userRes.data, token };
+            localStorage.setItem("user", JSON.stringify(currentUser));
+            localStorage.setItem("token", token);
+          }
+        } catch (e) {
+          console.error("Profile sync failed:", e);
+        }
+      }
+
       if (!currentUser) {
         router.push("/login");
         return;
@@ -61,12 +87,18 @@ export default function UserDashboard() {
       setImagePreview(currentUser.image || null);
 
       try {
-        const commentRes = await getMyComments();
-        if (commentRes.success) {
-          setComments(commentRes.data || []);
-        }
+        const [commentRes, likeRes, favRes] = await Promise.all([
+          getMyComments(),
+          getMyLikes(),
+          getMyFavourites()
+        ]);
+        
+        if (commentRes.success) setComments(commentRes.data || []);
+        if (likeRes.success) setLikes(likeRes.data || []);
+        if (favRes.success) setFavourites(favRes.data || []);
+        
       } catch (err) {
-        console.error("Failed to fetch comments", err);
+        console.error("Failed to fetch dashboard data", err);
       } finally {
         setLoading(false);
       }
@@ -120,15 +152,17 @@ export default function UserDashboard() {
     }
   };
 
-  const handleDeleteComment = async (id: number) => {
-    if (!confirm("Hapus komentar ini?")) return;
+  const handleDeleteComment = async () => {
+    if (!deleteModal.id) return;
     try {
-      const res = await deleteComment(id);
+      const res = await deleteComment(deleteModal.id);
       if (res.success) {
-        setComments(comments.filter(c => c.id !== id));
+        setComments(comments.filter(c => c.id !== deleteModal.id));
+        setDeleteModal({ isOpen: false, id: null });
+        setMessage({ type: "success", text: "Komentar berhasil dihapus" });
       }
     } catch (err) {
-      alert("Gagal menghapus komentar");
+      setMessage({ type: "error", text: "Gagal menghapus komentar" });
     }
   };
 
@@ -208,8 +242,10 @@ export default function UserDashboard() {
                 {[
                   { id: "overview", label: "Overview", icon: User, color: "text-blue-500", bg: "bg-blue-500/10" },
                   { id: "history", label: "Comment History", icon: MessageSquare, color: "text-purple-500", bg: "bg-purple-500/10" },
+                  { id: "likes", label: "Liked Items", icon: Heart, color: "text-red-500", bg: "bg-red-500/10" },
+                  { id: "favourites", label: "Favorites", icon: Bookmark, color: "text-cyan-500", bg: "bg-cyan-500/10" },
                   { id: "settings", label: "Settings", icon: Settings, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-                   { id: "back", label: "Back", icon: Home, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                  { id: "back", label: "Back", icon: Home, color: "text-emerald-500", bg: "bg-emerald-500/10" },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -318,7 +354,7 @@ export default function UserDashboard() {
                            </p>
                         </div>
                         <button 
-                          onClick={() => handleDeleteComment(comment.id)}
+                          onClick={() => setDeleteModal({ isOpen: true, id: comment.id })}
                           className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
                         >
                           <Trash2 size={20} />
@@ -429,6 +465,86 @@ export default function UserDashboard() {
               </div>
             )}
 
+            {/* 4. LIKED ITEMS */}
+            {activeTab === "likes" && (
+              <div className="bg-gray-900/50 backdrop-blur-lg border border-white/5 rounded-3xl p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h2 className="text-3xl font-black mb-8 flex items-center gap-3">
+                  <Heart size={32} className="text-red-500" />
+                  Produk Disukai
+                </h2>
+                {likes.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {likes.map((item) => (
+                      <div key={item.id} className="group relative bg-white/5 rounded-3xl border border-white/5 hover:border-red-500/30 transition-all overflow-hidden">
+                        <div className="h-40 relative">
+                          <Image src={item.products?.image || "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1000&auto=format&fit=crop"} alt={item.products?.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-transparent" />
+                        </div>
+                        <div className="p-6">
+                          <span className="text-red-400 text-[10px] font-black uppercase tracking-widest mb-1 inline-block">Liked</span>
+                          <h3 className="text-xl font-black tracking-tight mb-2">{item.products?.name}</h3>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-bold text-gray-400">{new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(item.products?.price || 0)}</span>
+                            <button 
+                                onClick={() => router.push('/others')}
+                                className="text-xs font-black uppercase tracking-widest text-white hover:text-red-400 transition-colors"
+                            >
+                                View Product
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-20 bg-white/5 rounded-3xl border-2 border-dashed border-white/5">
+                    <Heart size={48} className="mx-auto mb-4 text-gray-700" />
+                    <p className="text-gray-500 font-bold">Belum ada produk yang disukai.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 5. FAVORITES */}
+            {activeTab === "favourites" && (
+              <div className="bg-gray-900/50 backdrop-blur-lg border border-white/5 rounded-3xl p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h2 className="text-3xl font-black mb-8 flex items-center gap-3">
+                  <Bookmark size={32} className="text-cyan-500" />
+                  Produk Tersimpan
+                </h2>
+                {favourites.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {favourites.map((item) => (
+                      <div key={item.id} className="group relative bg-white/5 rounded-3xl border border-white/5 hover:border-cyan-500/30 transition-all overflow-hidden">
+                        <div className="h-40 relative">
+                          <Image src={item.products?.image || "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1000&auto=format&fit=crop"} alt={item.products?.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-transparent" />
+                        </div>
+                        <div className="p-6">
+                          <span className="text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-1 inline-block">Saved</span>
+                          <h3 className="text-xl font-black tracking-tight mb-2">{item.products?.name}</h3>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-bold text-gray-400">{new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(item.products?.price || 0)}</span>
+                            <button 
+                                onClick={() => router.push('/others')}
+                                className="text-xs font-black uppercase tracking-widest text-white hover:text-cyan-400 transition-colors"
+                            >
+                                View Product
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-20 bg-white/5 rounded-3xl border-2 border-dashed border-white/5">
+                    <Bookmark size={48} className="mx-auto mb-4 text-gray-700" />
+                    <p className="text-gray-500 font-bold">Belum ada produk yang disimpan.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
         </div>
       </div>
@@ -454,6 +570,33 @@ export default function UserDashboard() {
                 className="flex-1 px-6 py-4 bg-red-600 hover:bg-red-700 rounded-2xl font-bold transition-all text-white shadow-lg shadow-red-600/20"
               >
                 Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Comment Modal */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-gray-900 border border-white/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200 text-center">
+            <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500 mx-auto mb-6">
+              <Trash2 size={32} />
+            </div>
+            <h3 className="text-2xl font-black mb-2">Hapus Komentar?</h3>
+            <p className="text-gray-400 font-medium mb-8">Tindakan ini tidak dapat dibatalkan. Komentar Anda akan dihapus secara permanen.</p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setDeleteModal({ isOpen: false, id: null })}
+                className="flex-1 px-6 py-4 bg-white/5 hover:bg-white/10 rounded-2xl font-bold transition-all text-gray-300"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleDeleteComment}
+                className="flex-1 px-6 py-4 bg-red-600 hover:bg-red-700 rounded-2xl font-bold transition-all text-white shadow-lg shadow-red-600/20"
+              >
+                Hapus
               </button>
             </div>
           </div>

@@ -1,6 +1,3 @@
-/* ===========================
-   COMMENT API
-=========================== */
 import axios from "axios";
 
 const API = process.env.NEXT_PUBLIC_BASE_API;
@@ -31,6 +28,16 @@ export const getAllComments = async (page = 1, limit = 10): Promise<ApiResponse<
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to get all comments");
+  }
+};
+
+// GET COMMENTS BY PRODUCT — public
+export const getCommentsByProduct = async (idProduct: string | number): Promise<ApiResponse<any>> => {
+  try {
+    const response = await axios.get(`${API}api/comments/product/${idProduct}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Failed to get product comments");
   }
 };
 

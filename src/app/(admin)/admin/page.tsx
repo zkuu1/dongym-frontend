@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { getAllUser } from "@/data/api/userApi";
 import { getAllProduct } from "@/data/api/productApi";
+import { getAllCategory } from "@/data/api/categoryApi";
+import { getAllMembership } from "@/data/api/membershipApi";
+import { getAllComments } from "@/data/api/commentApi";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import {
   Users,
   ShoppingBag,
@@ -12,19 +16,26 @@ import {
   UserCheck,
   Package,
   Dumbbell,
+  MessageSquare,
 } from "lucide-react";
 
 export default function AdminDashboard() {
   const [userCount, setUserCount] = useState<number | null>(null);
   const [productCount, setProductCount] = useState<number | null>(null);
+  const [categoryCount, setCategoryCount] = useState<number | null>(null);
+  const [membershipCount, setMembershipCount] = useState<number | null>(null);
+  const [commentCount, setCommentCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [usersRes, productsRes] = await Promise.allSettled([
+        const [usersRes, productsRes, categoriesRes, membershipsRes, commentsRes] = await Promise.allSettled([
           getAllUser(),
           getAllProduct(),
+          getAllCategory(),
+          getAllMembership(),
+          getAllComments()
         ]);
 
         if (usersRes.status === "fulfilled") {
@@ -32,6 +43,15 @@ export default function AdminDashboard() {
         }
         if (productsRes.status === "fulfilled") {
           setProductCount(productsRes.value?.data?.length ?? 0);
+        }
+        if (categoriesRes.status === "fulfilled") {
+           setCategoryCount(categoriesRes.value?.data?.length ?? 0);
+        }
+        if (membershipsRes.status === "fulfilled") {
+           setMembershipCount(membershipsRes.value?.data?.length ?? 0);
+        }
+        if (commentsRes.status === "fulfilled") {
+           setCommentCount(commentsRes.value?.data?.length ?? 0);
         }
       } catch (err) {
         console.error(err);
@@ -51,7 +71,7 @@ export default function AdminDashboard() {
       color: "from-violet-500 to-purple-700",
       bg: "bg-violet-500/10 border-violet-500/30",
       iconColor: "text-violet-400",
-      trend: "+12% this month",
+      trend: "All time",
     },
     {
       label: "Total Products",
@@ -60,33 +80,50 @@ export default function AdminDashboard() {
       color: "from-blue-500 to-cyan-600",
       bg: "bg-blue-500/10 border-blue-500/30",
       iconColor: "text-blue-400",
-      trend: "+5 new items",
+      trend: "In Catalog",
     },
     {
-      label: "Active Memberships",
-      value: loading ? "..." : "—",
-      icon: CreditCard,
+      label: "Categories",
+      value: loading ? "..." : categoryCount ?? 0,
+      icon: Dumbbell,
       color: "from-emerald-500 to-teal-600",
       bg: "bg-emerald-500/10 border-emerald-500/30",
       iconColor: "text-emerald-400",
-      trend: "Renewing soon",
+      trend: "Active",
     },
     {
-      label: "Attendance Today",
-      value: loading ? "..." : "—",
-      icon: Activity,
-      color: "from-orange-500 to-red-500",
+      label: "Memberships",
+      value: loading ? "..." : membershipCount ?? 0,
+      icon: CreditCard,
+      color: "from-orange-500 to-amber-500",
       bg: "bg-orange-500/10 border-orange-500/30",
       iconColor: "text-orange-400",
-      trend: "Real-time",
+      trend: "Registered",
     },
+    {
+       label: "Total Comments",
+       value: loading ? "..." : commentCount ?? 0,
+       icon: MessageSquare,
+       color: "from-pink-500 to-rose-600",
+       bg: "bg-pink-500/10 border-pink-500/30",
+       iconColor: "text-pink-400",
+       trend: "User Feedbacks",
+    }
+  ];
+
+  const chartData = [
+    { name: "Members", total: userCount ?? 0, fill: "#8b5cf6" },
+    { name: "Products", total: productCount ?? 0, fill: "#3b82f6" },
+    { name: "Categories", total: categoryCount ?? 0, fill: "#10b981" },
+    { name: "Memberships", total: membershipCount ?? 0, fill: "#f97316" },
+    { name: "Comments", total: commentCount ?? 0, fill: "#ec4899" },
   ];
 
   const quickLinks = [
     { label: "Manage Members", href: "/admin/user", icon: UserCheck, color: "text-violet-400" },
     { label: "Manage Products", href: "/admin/product", icon: Package, color: "text-blue-400" },
     { label: "Categories", href: "/admin/category", icon: Dumbbell, color: "text-emerald-400" },
-    { label: "Attendance", href: "/admin/tracking", icon: TrendingUp, color: "text-orange-400" },
+    { label: "Attendance", href: "/admin/comment", icon: TrendingUp, color: "text-orange-400" },
   ];
 
   return (
@@ -99,7 +136,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -158,6 +195,28 @@ export default function AdminDashboard() {
           <p className="text-gray-400 text-sm">Manage all your gym operations from one place. Use the sidebar to navigate.</p>
         </div>
       </div>
+
+      {/* Overview Chart */}
+      {!loading && (
+        <div className="rounded-2xl border bg-gray-900 border-gray-800 p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-white mb-6">Metrics Overview</h2>
+          <div className="h-72 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip 
+                  cursor={{ fill: '#374151', opacity: 0.2 }}
+                  contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '0.75rem', color: '#fff' }}
+                  itemStyle={{ color: '#fff' }}
+                />
+                <Bar dataKey="total" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
     </div>
   );

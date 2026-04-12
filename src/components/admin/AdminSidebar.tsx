@@ -49,15 +49,16 @@ const menuItems = [
     icon: MessageSquare,
   },
   {
-    title: "Back",
-    href: "/",
-    icon: Home,
-  },
-  {
     title: "Settings",
     href: "/admin/settings",
     icon: Settings,
   },
+  {
+    title: "Back",
+    href: "/",
+    icon: Home,
+  },
+  
 ];
 
 export default function AdminSidebar() {
@@ -68,9 +69,11 @@ export default function AdminSidebar() {
     <>
       {/* Mobile topbar */}
       <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between bg-gray-950/80 backdrop-blur-lg border-b border-gray-800 p-4">
-        <h1 className="font-bold text-lg text-white tracking-tight">
-          Don Gym <span className="text-blue-500">Admin</span>
-        </h1>
+        <Link href="/admin" className="flex items-center gap-2">
+          <h1 className="font-bold text-lg text-white tracking-tight hidden sm:block">
+            Don Gym <span className="text-blue-500">Admin</span>
+          </h1>
+        </Link>
 
         <button 
           onClick={() => setOpen(true)}
@@ -92,8 +95,8 @@ export default function AdminSidebar() {
      <aside
         className={`
             fixed top-0 left-0 z-[90]
-            w-64 h-screen
-            bg-gray-900/60 backdrop-blur-xl border-r border-white/5
+            w-20 lg:w-64 h-screen
+            bg-gray-950/90 backdrop-blur-2xl border-r border-white/5
             transform transition-transform duration-300
             
             ${open ? "translate-x-0" : "-translate-x-full"}
@@ -103,8 +106,11 @@ export default function AdminSidebar() {
         >
 
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h1 className="font-bold text-xl text-white ">Don Gym Admin</h1>
+        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className="flex items-center gap-3">
+            <Dumbbell className="text-blue-500" size={24} />
+            <h1 className="font-bold text-xl text-white hidden lg:block">Don Gym Admin</h1>
+          </div>
 
           <button
             className="lg:hidden"
@@ -126,17 +132,18 @@ export default function AdminSidebar() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={`
-                  flex items-center gap-3 px-3 py-2 rounded-lg transition
+                  flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300
+                  justify-center lg:justify-start
                   
                   ${
                     active
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                      ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                      : "text-gray-400 hover:bg-white/5 hover:text-white"
                   }
                 `}
               >
-                <Icon size={20} />
-                {item.title}
+                <Icon size={20} className="shrink-0" />
+                <span className="hidden lg:block">{item.title}</span>
               </Link>
             );
           })}

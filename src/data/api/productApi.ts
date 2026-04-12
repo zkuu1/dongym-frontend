@@ -1,6 +1,3 @@
-/* ===========================
-   PRODUCT API
-=========================== */
 import axios from "axios";
 
 const API = process.env.NEXT_PUBLIC_BASE_API;
