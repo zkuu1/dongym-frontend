@@ -31,10 +31,11 @@ export function middleware(request: NextRequest) {
 
   const isAdminPage = pathname.startsWith("/admin");
   const isUserPage = pathname.startsWith("/user");
+  const isAbsensiPage = pathname.startsWith("/absensi");
   const isRootPage = pathname === "/";
 
   // 2. Redirect to login if accessing protected pages without token
-  if (!token && (isAdminPage || isUserPage)) {
+  if (!token && (isAdminPage || isUserPage || isAbsensiPage)) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -81,5 +82,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/user/:path*", "/login", "/register", "/"],
+  matcher: ["/admin/:path*", "/user/:path*", "/absensi/:path*", "/login", "/register", "/"],
 };

@@ -17,7 +17,9 @@ import {
   Loader2,
   ShoppingBag,
   Heart,
+  FileSpreadsheet,
 } from "lucide-react"
+import { utils, writeFile } from "xlsx";
 
 type ProductData = {
   id: string | number
@@ -145,6 +147,23 @@ export default function AdminProductPage() {
     p.name?.toLowerCase().includes(search.toLowerCase())
   )
 
+  const handleExportToExcel = () => {
+    if (filtered.length === 0) return
+    const data = filtered.map(p => ({
+      "ID": p.id,
+      "Name": p.name,
+      "Category": categories.find(c => String(c.id) === String(p.idCategory))?.name ?? p.category?.name ?? "—",
+      "Price": p.price,
+      "Stock": p.stock,
+      "Likes": p.likeCount || 0,
+      "Description": p.description || "-"
+    }))
+    const ws = utils.json_to_sheet(data)
+    const wb = utils.book_new()
+    utils.book_append_sheet(wb, ws, "Products")
+    writeFile(wb, `Products_${new Date().toISOString().split('T')[0]}.xlsx`)
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -153,9 +172,17 @@ export default function AdminProductPage() {
           <h1 className="text-2xl font-bold text-white">Product Management</h1>
           <p className="text-gray-400 text-sm mt-1">{products.length} total produk</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition">
-          <Plus size={18} /> Tambah Produk
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleExportToExcel}
+            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition active:scale-95 shadow-lg shadow-emerald-500/20 whitespace-nowrap"
+          >
+            <FileSpreadsheet size={18} /> Export to Excel
+          </button>
+          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition active:scale-95">
+            <Plus size={18} /> Tambah Produk
+          </button>
+        </div>
       </div>
 
       {/* Search */}

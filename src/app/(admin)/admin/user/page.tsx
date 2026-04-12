@@ -17,7 +17,9 @@ import {
   Users,
   ShieldCheck,
   User,
+  FileSpreadsheet,
 } from "lucide-react"
+import { utils, writeFile } from "xlsx";
 
 type UserData = {
   id: string
@@ -168,6 +170,22 @@ export default function AdminUserPage() {
       u.email?.toLowerCase().includes(search.toLowerCase())
   )
 
+  const handleExportToExcel = () => {
+    if (filtered.length === 0) return
+    const data = filtered.map(u => ({
+      "ID": u.id,
+      "Name": u.name,
+      "Email": u.email,
+      "Role": u.role.toUpperCase(),
+      "Address": u.address || "-",
+      "Membership": u.memberships && u.memberships.length > 0 ? u.memberships[0].name : "Non Member"
+    }))
+    const ws = utils.json_to_sheet(data)
+    const wb = utils.book_new()
+    utils.book_append_sheet(wb, ws, "Users")
+    writeFile(wb, `Users_${new Date().toISOString().split('T')[0]}.xlsx`)
+  }
+
   return (
     <div className="space-y-6">
 
@@ -179,13 +197,21 @@ export default function AdminUserPage() {
             {users.length} total member terdaftar
           </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition"
-        >
-          <UserPlus size={18} />
-          Tambah User
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleExportToExcel}
+            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition active:scale-95 shadow-lg shadow-emerald-500/20 whitespace-nowrap"
+          >
+            <FileSpreadsheet size={18} /> Export to Excel
+          </button>
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition active:scale-95"
+          >
+            <UserPlus size={18} />
+            Tambah User
+          </button>
+        </div>
       </div>
 
       {/* Search */}

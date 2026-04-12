@@ -89,6 +89,20 @@ const Appbar = () => {
                   </Link>
                 ))}
 
+                {user && (
+                  <Link
+                    href="/absensi"
+                    className={`px-4 py-2 transition ${
+                      pathname === "/absensi"
+                        ? "bg-white text-gray-900"
+                        : "text-white hover:bg-purple-700"
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Absensi
+                  </Link>
+                )}
+
                 {isMember && (
                   <Link
                     href="/user"
@@ -177,6 +191,19 @@ const Appbar = () => {
                 {link.label}
               </Link>
             ))}
+
+            {user && (
+              <Link
+                href="/absensi"
+                className={`inline-block rounded-lg px-2 py-1 text-sm font-medium transition-all duration-200 ${
+                  pathname === "/absensi"
+                    ? "bg-white text-gray-900"
+                    : "text-white hover:bg-gray-100 hover:text-gray-900"
+                }`}
+              >
+                Absensi
+              </Link>
+            )}
 
             {isAdmin && (
               <Link

@@ -26,7 +26,8 @@ import { getMyComments, deleteComment } from "@/data/api/commentApi";
 import { updateUserById, searchUserById } from "@/data/api/userApi";
 import { getMyLikes } from "@/data/api/likeApi";
 import { getMyFavourites } from "@/data/api/favouriteApi";
-import { Heart, Bookmark } from "lucide-react";
+import { Heart, Bookmark, ClipboardCheck } from "lucide-react";
+import { getAbsensiMe } from "@/data/api/absensiApi";
 
 export default function UserDashboard() {
   const router = useRouter();
@@ -35,6 +36,7 @@ export default function UserDashboard() {
   const [comments, setComments] = useState<any[]>([]);
   const [likes, setLikes] = useState<any[]>([]);
   const [favourites, setFavourites] = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: number | null }>({
@@ -87,15 +89,17 @@ export default function UserDashboard() {
       setImagePreview(currentUser.image || null);
 
       try {
-        const [commentRes, likeRes, favRes] = await Promise.all([
+        const [commentRes, likeRes, favRes, absensiRes] = await Promise.all([
           getMyComments(),
           getMyLikes(),
-          getMyFavourites()
+          getMyFavourites(),
+          getAbsensiMe()
         ]);
         
         if (commentRes.success) setComments(commentRes.data || []);
         if (likeRes.success) setLikes(likeRes.data || []);
         if (favRes.success) setFavourites(favRes.data || []);
+        if (absensiRes.success) setAttendance(absensiRes.data || []);
         
       } catch (err) {
         console.error("Failed to fetch dashboard data", err);
@@ -244,6 +248,7 @@ export default function UserDashboard() {
                   { id: "history", label: "Comment History", icon: MessageSquare, color: "text-purple-500", bg: "bg-purple-500/10" },
                   { id: "likes", label: "Liked Items", icon: Heart, color: "text-red-500", bg: "bg-red-500/10" },
                   { id: "favourites", label: "Favorites", icon: Bookmark, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+                  { id: "attendance", label: "Attendance", icon: ClipboardCheck, color: "text-orange-500", bg: "bg-orange-500/10" },
                   { id: "settings", label: "Settings", icon: Settings, color: "text-emerald-500", bg: "bg-emerald-500/10" },
                   { id: "back", label: "Back", icon: Home, color: "text-emerald-500", bg: "bg-emerald-500/10" },
                 ].map((item) => (
@@ -540,6 +545,59 @@ export default function UserDashboard() {
                   <div className="text-center py-20 bg-white/5 rounded-3xl border-2 border-dashed border-white/5">
                     <Bookmark size={48} className="mx-auto mb-4 text-gray-700" />
                     <p className="text-gray-500 font-bold">Belum ada produk yang disimpan.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 6. ATTENDANCE HISTORY */}
+            {activeTab === "attendance" && (
+              <div className="bg-gray-900/50 backdrop-blur-lg border border-white/5 rounded-3xl p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h2 className="text-3xl font-black mb-8 flex items-center gap-3">
+                  <ClipboardCheck size={32} className="text-orange-500" />
+                  Riwayat Kehadiran
+                </h2>
+                
+                {attendance.length > 0 ? (
+                  <div className="bg-white/5 rounded-3xl overflow-hidden border border-white/5">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-white/5 text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                          <th className="px-6 py-4">Tanggal</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4">No Member</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 font-medium">
+                        {attendance.map((item, idx) => (
+                          <tr key={item.id} className="hover:bg-white/5 transition-colors group">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                <Calendar size={14} className="text-orange-500" />
+                                {new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                 item.status === 'member' 
+                                   ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' 
+                                   : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                               }`}>
+                                 {item.status}
+                               </span>
+                            </td>
+                            <td className="px-6 py-4 text-gray-400">
+                              {item.noMember || "-"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-20 bg-white/5 rounded-3xl border-2 border-dashed border-white/5">
+                    <ClipboardCheck size={48} className="mx-auto mb-4 text-gray-700" />
+                    <p className="text-gray-500 font-bold">Belum ada riwayat kehadiran.</p>
                   </div>
                 )}
               </div>

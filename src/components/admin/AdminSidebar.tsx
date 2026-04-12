@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   ChartSpline,
+  Calendar,
   ChartBarStacked,
   MessageSquare,
   Home,
@@ -47,6 +48,11 @@ const menuItems = [
     title: "Comments",
     href: "/admin/comment",
     icon: MessageSquare,
+  },
+  {
+    title: "Attendance",
+    href: "/admin/absensi",
+    icon: Calendar,
   },
   {
     title: "Settings",
