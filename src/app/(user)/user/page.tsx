@@ -19,7 +19,8 @@ import {
   Calendar,
   ChevronRight,
   Clock,
-  Home
+  Home,
+  Trophy // Added Trophy
 } from "lucide-react";
 import { getUser, logout, getToken } from "@/utils/auth";
 import { getMyComments, deleteComment } from "@/data/api/commentApi";
@@ -27,7 +28,7 @@ import { updateUserById, searchUserById } from "@/data/api/userApi";
 import { getMyLikes } from "@/data/api/likeApi";
 import { getMyFavourites } from "@/data/api/favouriteApi";
 import { Heart, Bookmark, ClipboardCheck } from "lucide-react";
-import { getAbsensiMe } from "@/data/api/absensiApi";
+import { getAbsensiMe, getUserRank } from "@/data/api/absensiApi";
 
 export default function UserDashboard() {
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function UserDashboard() {
   const [likes, setLikes] = useState<any[]>([]);
   const [favourites, setFavourites] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<any[]>([]);
+  const [rank, setRank] = useState<any>(null); // Added rank state
   const [loading, setLoading] = useState(true);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: number | null }>({
@@ -89,17 +91,19 @@ export default function UserDashboard() {
       setImagePreview(currentUser.image || null);
 
       try {
-        const [commentRes, likeRes, favRes, absensiRes] = await Promise.all([
+        const [commentRes, likeRes, favRes, absensiRes, rankRes] = await Promise.all([
           getMyComments(),
           getMyLikes(),
           getMyFavourites(),
-          getAbsensiMe()
+          getAbsensiMe(),
+          getUserRank(currentUser.id_user || currentUser.id)
         ]);
         
         if (commentRes.success) setComments(commentRes.data || []);
         if (likeRes.success) setLikes(likeRes.data || []);
         if (favRes.success) setFavourites(favRes.data || []);
         if (absensiRes.success) setAttendance(absensiRes.data || []);
+        if (rankRes.success) setRank(rankRes.data);
         
       } catch (err) {
         console.error("Failed to fetch dashboard data", err);
@@ -296,14 +300,15 @@ export default function UserDashboard() {
 
                   <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-8 rounded-3xl border border-white/10 shadow-xl group relative overflow-hidden">
                     <div className="absolute inset-0 bg-blue-600/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <p className="text-blue-400 font-bold uppercase tracking-widest text-xs mb-4">Status Akun</p>
-                    <h3 className="text-3xl font-black mb-2 text-white">
-                      {user.memberships && user.memberships.length > 0 ? "Member Aktif" : "Member Biasa"}
-                    </h3>
+                    <p className="text-blue-400 font-bold uppercase tracking-widest text-xs mb-4">Peringkat Leaderboard</p>
+                    <div className="flex items-center gap-4 mb-2">
+                       <h3 className="text-5xl font-black text-white">
+                         #{rank?.rank || "-"}
+                       </h3>
+                       <Trophy size={32} className="text-yellow-500 animate-bounce" />
+                    </div>
                     <p className="text-gray-400 font-medium">
-                      {user.memberships && user.memberships.length > 0 
-                        ? "Akses penuh ke semua fitur gym & komunitas." 
-                        : "Daftar membership untuk akses fitur premium."}
+                      {rank ? `Anda berada di peringkat ke-${rank.rank} dari seluruh member.` : "Belum masuk dalam peringkat leaderboard."}
                     </p>
                   </div>
                 </div>

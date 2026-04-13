@@ -94,3 +94,25 @@ export const deleteAbsensi = async (id: number): Promise<ApiResponse<any>> => {
         throw new Error(error.response?.data?.message || "Failed to delete absensi");
     }
 };
+
+// GET LEADERBOARD
+export const getLeaderboard = async (): Promise<ApiResponse<any[]>> => {
+    try {
+        const res = await axios.get(`${API}api/absensi/leaderboard/all`);
+        return res.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to get leaderboard");
+    }
+};
+
+// GET USER RANK
+export const getUserRank = async (id_user: number): Promise<ApiResponse<any>> => {
+    try {
+        const res = await axios.get(`${API}api/absensi/rank/${id_user}`, {
+            headers: getAuthHeader(),
+        });
+        return res.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to get your rank");
+    }
+};

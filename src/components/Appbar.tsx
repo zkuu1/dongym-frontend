@@ -33,6 +33,7 @@ const Appbar = () => {
     { href: "/muscle", label: "Hit The Muscle" },
     { href: "/about", label: "About" },
     { href: "/others", label: "Others" },
+    { href: "/leaderboard", label: "Leaderboard" },
   ];
 
   return (

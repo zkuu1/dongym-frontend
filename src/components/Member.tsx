@@ -8,6 +8,8 @@ import {
 
 import { motion } from "framer-motion"
 
+import Link from "next/link";
+
 export default function MemberCard() {
   return (
     <section className="py-20 bg-black">
@@ -81,9 +83,9 @@ export default function MemberCard() {
               </p>
             </div>
 
-            <button className="w-full mt-8 bg-gradient-to-r from-base_purple to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 transform hover:-translate-y-1">
+            <Link href="/login" className="w-full inline-block text-center mt-8 bg-gradient-to-r from-base_purple to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 transform hover:-translate-y-1">
               Register Now
-            </button>
+            </Link>
           </div>
 
           {/* Terms Section */}
