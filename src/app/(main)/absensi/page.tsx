@@ -8,6 +8,7 @@ import { Calendar, User as UserIcon, ClipboardList, CheckCircle, Info, Hash } fr
 import { getUser } from "@/utils/auth";
 import { getAllUser } from "@/data/api/userApi";
 import { createAbsensi, getAllAbsensi, getAbsensiMe } from "@/data/api/absensiApi";
+import { getMembershipMe } from "@/data/api/membershipApi";
 import { containerVariants, itemVariants, cardVariants } from "@/utils/motion";
 
 export default function AbsensiPage() {
@@ -47,8 +48,24 @@ export default function AbsensiPage() {
                     setUsers(userData.data || []);
                     setAttendanceRecords(absensiData.data || []);
                 } else if (currentUser) {
-                    const absensiData = await getAbsensiMe();
+                    const [absensiData, membershipData] = await Promise.all([
+                        getAbsensiMe(),
+                        getMembershipMe().catch(() => ({ data: null }))
+                    ]);
                     setAttendanceRecords(absensiData.data || []);
+                    
+                    // Priority: 1. Active Membership API, 2. Login User Data
+                    const activeMembership = membershipData.data;
+                    const fallbackMembership = currentUser.memberships?.[0];
+                    const membershipToUse = activeMembership || fallbackMembership;
+
+                    if (membershipToUse) {
+                        setFormData(prev => ({ 
+                            ...prev, 
+                            noMember: membershipToUse.no_member || membershipToUse.numberMember || "",
+                            status: activeMembership ? "member" : "non member"
+                        }));
+                    }
                 }
             } catch (error: any) {
                 console.error("Error fetching data:", error);
@@ -104,8 +121,8 @@ export default function AbsensiPage() {
             // Reset partial form
             setFormData(prev => ({
                 ...prev,
-                idUser: "",
-                noMember: ""
+                idUser: !isAdmin ? prev.idUser : "",
+                noMember: !isAdmin ? prev.noMember : ""
             }));
         } catch (error: any) {
             toast.error(error.message || "Gagal mencatat absensi");
@@ -205,15 +222,16 @@ export default function AbsensiPage() {
                                     {/* No Member Input */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
-                                            <Hash size={16} /> No Member (Opsional)
+                                            <Hash size={16} /> No Member
                                         </label>
                                         <input 
                                             type="text"
                                             name="noMember"
                                             value={formData.noMember}
                                             onChange={handleChange}
-                                            placeholder="Contoh: 1111"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-base_purple transition-all"
+                                            placeholder={isAdmin ? "Contoh: 1111" : (formData.noMember ? "ID Member Terdeteksi" : "Ketik ID Member Anda")}
+                                            className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none transition-all ${(!isAdmin && formData.noMember) ? 'opacity-70 cursor-not-allowed border-dashed' : 'focus:ring-2 focus:ring-base_purple'}`}
+                                            readOnly={!isAdmin && !!formData.noMember}
                                         />
                                     </div>
 

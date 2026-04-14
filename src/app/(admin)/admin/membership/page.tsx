@@ -99,10 +99,10 @@ export default function AdminMembershipPage() {
   const closeModal = () => { setModalMode(null); setSelected(null); setError(""); setSuccess("") }
 
   const handleCreate = async () => {
-    if (!form.idUser || !form.name || !form.noMember || !form.expiredAt) { 
-      setError("Field User, Nama, No Member, dan Expiry wajib diisi."); 
-      return 
-    }
+    // if (!form.idUser || !form.name || !form.noMember || !form.expiredAt) { 
+    //   setError("Field User, Nama, No Member, dan Expiry wajib diisi."); 
+    //   return 
+    // }
     setSubmitting(true); setError("")
     try {
       const userId = Number(form.idUser)
@@ -304,11 +304,17 @@ export default function AdminMembershipPage() {
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               {error && (
                 <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">
-                  <p className="font-bold mb-1 flex items-center gap-2">Error Simpan Data</p>
-                  <ul className="list-disc list-inside space-y-1 opacity-90">
-                    {error.split("|").map((msg, idx) => (
-                      <li key={idx}>{msg.trim().replace(/^Validasi Error:\s*/, "")}</li>
-                    ))}
+                  <div className="flex items-center gap-2 font-bold mb-2">
+                    <X size={16} className="text-red-500" />
+                    <span>Gagal Menyimpan Data</span>
+                  </div>
+                  <ul className="space-y-1.5 opacity-90 ml-6 list-disc">
+                    {error.split("|").map((msg, idx) => {
+                      const cleanMsg = msg.trim()
+                        .replace(/^Validasi Error:\s*/, "")
+                        .replace(/^general:\s*/i, "");
+                      return <li key={idx} className="leading-relaxed">{cleanMsg}</li>;
+                    })}
                   </ul>
                 </div>
               )}
@@ -341,7 +347,7 @@ export default function AdminMembershipPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Deskripsi</label>
+                    <label className="block text-sm text-gray-400 mb-1">Deskripsi (Optional)</label>
                     <textarea placeholder="Deskripsi paket membership..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition min-h-[80px]" />
                   </div>
                   <div className="flex gap-3">

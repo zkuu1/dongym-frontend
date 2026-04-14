@@ -30,9 +30,14 @@ export const getAllMembership = async (): Promise<ApiResponse<any>> => {
     const data = error.response?.data;
     if (data?.errors) {
       const detail = Object.entries(data.errors)
-        .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
         .join(" | ");
-      throw new Error(`${data.message || "Validasi Error"}: ${detail}`);
+      
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
     }
     throw new Error(data?.message || "Failed to get memberships");
   }
@@ -49,11 +54,40 @@ export const getMembershipById = async (id: string | number): Promise<ApiRespons
     const data = error.response?.data;
     if (data?.errors) {
       const detail = Object.entries(data.errors)
-        .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
         .join(" | ");
-      throw new Error(`${data.message || "Validasi Error"}: ${detail}`);
+      
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
     }
     throw new Error(data?.message || "Failed to get membership by ID");
+  }
+};
+
+// GET MEMBERSHIP ME — protected
+export const getMembershipMe = async (): Promise<ApiResponse<any>> => {
+  try {
+    const response = await axios.get(`${API}api/membership/me`, {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  } catch (error: any) {
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get your membership status");
   }
 };
 
@@ -68,9 +102,14 @@ export const createMembership = async (payload: any): Promise<ApiResponse<any>> 
     const data = error.response?.data;
     if (data?.errors) {
       const detail = Object.entries(data.errors)
-        .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
         .join(" | ");
-      throw new Error(`${data.message || "Validasi Error"}: ${detail}`);
+      
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
     }
     throw new Error(data?.message || "Failed to create membership");
   }
@@ -90,9 +129,14 @@ export const updateMembershipById = async (
     const data = error.response?.data;
     if (data?.errors) {
       const detail = Object.entries(data.errors)
-        .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
         .join(" | ");
-      throw new Error(`${data.message || "Validasi Error"}: ${detail}`);
+      
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
     }
     throw new Error(data?.message || "Failed to update membership");
   }
@@ -109,9 +153,14 @@ export const deleteMembershipById = async (id: string | number): Promise<ApiResp
     const data = error.response?.data;
     if (data?.errors) {
       const detail = Object.entries(data.errors)
-        .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
         .join(" | ");
-      throw new Error(`${data.message || "Validasi Error"}: ${detail}`);
+      
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
     }
     throw new Error(data?.message || "Failed to delete membership");
   }
