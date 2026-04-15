@@ -25,7 +25,18 @@ export const getAllUser = async () => {
     });
     return res.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to get users");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get users");
   }
 };
 
@@ -72,8 +83,12 @@ export const searchUser = async (keyword: string): Promise<ApiResponse<any>> => 
 // CREATE USER (admin usage) — protected
 export const createUser = async (payload: any): Promise<ApiResponse<any>> => {
   try {
+    const isFormData = payload instanceof FormData;
     const response = await axios.post(`${API}api/user`, payload, {
-      headers: getAuthHeader(),
+      headers: {
+        ...getAuthHeader(),
+        "Content-Type": isFormData ? "multipart/form-data" : "application/json",
+      },
     });
     return {
       success: true,
@@ -81,7 +96,18 @@ export const createUser = async (payload: any): Promise<ApiResponse<any>> => {
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to create user");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to create user");
   }
 };
 
@@ -95,11 +121,18 @@ export const registerUser = async (payload: any): Promise<ApiResponse<any>> => {
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    const apiMessage =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.message ||
-      "Pendaftaran gagal";
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    const apiMessage = data?.message || data?.error || error.message || "Pendaftaran gagal";
     throw new Error(apiMessage);
   }
 };
@@ -114,11 +147,18 @@ export const loginUser = async (payload: any): Promise<ApiResponse<any>> => {
       data: response.data,
     };
   } catch (error: any) {
-    const apiMessage =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.message ||
-      "Email atau password salah";
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    const apiMessage = data?.message || data?.error || error.message || "Email atau password salah";
     throw new Error(apiMessage);
   }
 };
@@ -142,7 +182,18 @@ export const updateUserById = async (
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to update user");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to update user");
   }
 };
 
@@ -158,6 +209,17 @@ export const deleteUserById = async (id: string): Promise<ApiResponse<any>> => {
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to delete user");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to delete user");
   }
 };

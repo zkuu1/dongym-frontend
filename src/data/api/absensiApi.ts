@@ -25,7 +25,18 @@ export const getAllAbsensi = async (): Promise<ApiResponse<any[]>> => {
         });
         return res.data;
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || "Failed to get absensi records");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get absensi records");
     }
 };
 
@@ -37,7 +48,18 @@ export const getAbsensiMe = async (): Promise<ApiResponse<any[]>> => {
         });
         return res.data;
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || "Failed to get your absensi records");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get your absensi records");
     }
 };
 
@@ -58,8 +80,18 @@ export const createAbsensi = async (payload: {
             data: response.data?.data ?? null,
         };
     } catch (error: any) {
-        const message = error.response?.data?.message || "Failed to create absensi";
-        throw new Error(message);
+        const data = error.response?.data;
+        if (data?.errors) {
+            const detail = Object.entries(data.errors)
+                .map(([key, val]) => {
+                    const value = Array.isArray(val) ? val.join(", ") : val;
+                    return key === 'general' ? value : `${key}: ${value}`;
+                })
+                .join(" | ");
+            const message = data.message || "Validasi Error";
+            throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+        }
+        throw new Error(data?.message || "Failed to create absensi");
     }
 };
 
@@ -75,7 +107,18 @@ export const updateAbsensi = async (id: number, payload: any): Promise<ApiRespon
             data: response.data?.data ?? null,
         };
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || "Failed to update absensi");
+        const data = error.response?.data;
+        if (data?.errors) {
+            const detail = Object.entries(data.errors)
+                .map(([key, val]) => {
+                    const value = Array.isArray(val) ? val.join(", ") : val;
+                    return key === 'general' ? value : `${key}: ${value}`;
+                })
+                .join(" | ");
+            const message = data.message || "Validasi Error";
+            throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+        }
+        throw new Error(data?.message || "Failed to update absensi");
     }
 };
 
@@ -91,7 +134,18 @@ export const deleteAbsensi = async (id: number): Promise<ApiResponse<any>> => {
             data: response.data?.data ?? null,
         };
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || "Failed to delete absensi");
+        const data = error.response?.data;
+        if (data?.errors) {
+            const detail = Object.entries(data.errors)
+                .map(([key, val]) => {
+                    const value = Array.isArray(val) ? val.join(", ") : val;
+                    return key === 'general' ? value : `${key}: ${value}`;
+                })
+                .join(" | ");
+            const message = data.message || "Validasi Error";
+            throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+        }
+        throw new Error(data?.message || "Failed to delete absensi");
     }
 };
 

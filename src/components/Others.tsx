@@ -478,6 +478,7 @@ const Modal: React.FC<{
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
+      maximumFractionDigits: 0,
     }).format(price);
   };
 
@@ -534,7 +535,6 @@ const Modal: React.FC<{
                 <div className="flex items-center justify-between mb-8">
                   <div className="text-3xl font-black text-cyan-400 font-mono tracking-tighter flex items-center gap-2">
                     {formatPrice(product.price)}
-                    <span className="text-gray-600 text-sm font-normal line-through opacity-50">{(product.price * 1.2).toFixed(0)}</span>
                   </div>
                   <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border ${product.stock > 0 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"} text-[10px] font-bold uppercase tracking-wider`}>
                     <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${product.stock > 0 ? "bg-emerald-400" : "bg-red-400"}`} />

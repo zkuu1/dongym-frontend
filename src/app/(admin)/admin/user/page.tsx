@@ -18,6 +18,12 @@ import {
   ShieldCheck,
   User,
   FileSpreadsheet,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle2,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react"
 import { utils, writeFile } from "xlsx";
 
@@ -44,15 +50,18 @@ export default function AdminUserPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
-  // Form state
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     address: "",
     role: "user",
+    image: "",
+    imageFile: null as File | null,
   })
+  const [preview, setPreview] = useState<string | null>(null)
 
   const fetchUsers = async () => {
     setLoading(true)
@@ -71,7 +80,8 @@ export default function AdminUserPage() {
   }, [])
 
   const openCreate = () => {
-    setForm({ name: "", email: "", password: "", address: "", role: "user" })
+    setForm({ name: "", email: "", password: "", address: "", role: "user", image: "", imageFile: null })
+    setPreview(null)
     setError("")
     setModalMode("create")
   }
@@ -84,7 +94,10 @@ export default function AdminUserPage() {
       password: "",
       address: user.address ?? "",
       role: user.role,
+      image: user.image ?? "",
+      imageFile: null,
     })
+    setPreview(user.image ?? null)
     setError("")
     setModalMode("edit")
   }
@@ -100,6 +113,8 @@ export default function AdminUserPage() {
     setSelectedUser(null)
     setError("")
     setSuccess("")
+    setShowPassword(false)
+    setPreview(null)
   }
 
   const handleCreate = async () => {
@@ -110,12 +125,17 @@ export default function AdminUserPage() {
     setSubmitting(true)
     setError("")
     try {
-      await createUser({
-        name: form.name,
-        email: form.email,
-        password: form.password,
-        address: form.address,
-      })
+      const formData = new FormData()
+      formData.append("name", form.name)
+      formData.append("email", form.email)
+      formData.append("password", form.password)
+      formData.append("address", form.address)
+      formData.append("role", form.role)
+      if (form.imageFile) {
+        formData.append("image", form.imageFile)
+      }
+
+      await createUser(formData)
       setSuccess("User berhasil dibuat!")
       await fetchUsers()
       setTimeout(closeModal, 1000)
@@ -131,13 +151,19 @@ export default function AdminUserPage() {
     setSubmitting(true)
     setError("")
     try {
-      await updateUserById(selectedUser.id, {
-        name: form.name,
-        email: form.email,
-        address: form.address,
-        role: form.role,
-        ...(form.password ? { password: form.password } : {}),
-      })
+      const formData = new FormData()
+      formData.append("name", form.name)
+      formData.append("email", form.email)
+      formData.append("address", form.address)
+      formData.append("role", form.role)
+      if (form.password) {
+        formData.append("password", form.password)
+      }
+      if (form.imageFile) {
+        formData.append("image", form.imageFile)
+      }
+
+      await updateUserById(selectedUser.id, formData)
       setSuccess("User berhasil diupdate!")
       await fetchUsers()
       setTimeout(closeModal, 1000)
@@ -198,7 +224,7 @@ export default function AdminUserPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={handleExportToExcel}
             className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition active:scale-95 shadow-lg shadow-emerald-500/20 whitespace-nowrap"
           >
@@ -266,9 +292,9 @@ export default function AdminUserPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center shrink-0 overflow-hidden border border-violet-500/20 shadow-sm">
                           {user.image && !user.image.includes("image.com") ? (
-                            <img 
-                              src={user.image} 
-                              alt={user.name} 
+                            <img
+                              src={user.image}
+                              alt={user.name}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -287,11 +313,10 @@ export default function AdminUserPage() {
                     <td className="px-5 py-4 text-gray-400 text-sm">{user.address || "—"}</td>
                     <td className="px-5 py-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider ${
-                          user.role?.toLowerCase() === "admin"
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider ${user.role?.toLowerCase() === "admin"
                             ? "bg-red-500/15 text-red-400 border border-red-500/30"
                             : "bg-blue-500/15 text-blue-400 border border-blue-500/30"
-                        }`}
+                          }`}
                       >
                         {user.role?.toLowerCase() === "admin" ? (
                           <ShieldCheck size={12} />
@@ -357,13 +382,24 @@ export default function AdminUserPage() {
 
               {/* Error / Success */}
               {error && (
-                <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">
-                  ⚠️ {error}
+                <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">
+                  <div className="flex items-center gap-2 font-bold mb-2">
+                    <AlertCircle size={16} className="text-red-500" />
+                    <span>Terjadi Kesalahan</span>
+                  </div>
+                  <ul className="space-y-1 ml-6 list-disc opacity-90">
+                    {error.split("|").map((msg, idx) => (
+                      <li key={idx} className="leading-relaxed">
+                        {msg.trim().replace(/^Validasi Error:\s*/, "").replace(/^general:\s*/i, "")}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
               {success && (
-                <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl px-4 py-3 text-sm">
-                  ✅ {success}
+                <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl px-4 py-3 text-sm font-medium">
+                  <CheckCircle2 size={18} className="text-emerald-500" />
+                  <span>{success}</span>
                 </div>
               )}
 
@@ -403,13 +439,22 @@ export default function AdminUserPage() {
                     <label className="block text-sm text-gray-400 mb-1">
                       Password {modalMode === "edit" && <span className="text-gray-600">(kosongkan jika tidak diubah)</span>}
                     </label>
-                    <input
-                      type="password"
-                      placeholder="••••••••"
-                      value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-violet-500 transition"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={form.password}
+                        onChange={(e) => setForm({ ...form, password: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-violet-500 transition pr-11"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition p-1"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm text-gray-400 mb-1">Alamat</label>
@@ -421,19 +466,56 @@ export default function AdminUserPage() {
                       className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-violet-500 transition"
                     />
                   </div>
-                  {modalMode === "edit" && (
-                    <div>
-                      <label className="block text-sm text-gray-400 mb-1">Role</label>
-                      <select
-                        value={form.role?.toLowerCase()}
-                        onChange={(e) => setForm({ ...form, role: e.target.value })}
-                        className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-violet-500 transition"
-                      >
-                        <option value="user">USER</option>
-                        <option value="admin">ADMIN</option>
-                      </select>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Role</label>
+                    <select
+                      value={form.role?.toLowerCase()}
+                      onChange={(e) => setForm({ ...form, role: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-violet-500 transition shadow-sm"
+                    >
+                      <option value="user">USER</option>
+                      <option value="admin">ADMIN</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">Foto Profil</label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center overflow-hidden shrink-0 relative group">
+                        {preview ? (
+                          <>
+                            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                              <ImageIcon size={20} className="text-white" />
+                            </div>
+                          </>
+                        ) : (
+                          <ImageIcon size={24} className="text-gray-600" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <label className="relative flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-700 rounded-2xl hover:bg-gray-800 hover:border-violet-500/50 transition cursor-pointer group">
+                          <div className="flex flex-col items-center justify-center py-2 px-3">
+                            <Upload size={18} className="text-gray-500 group-hover:text-violet-400 mb-1 transition" />
+                            <p className="text-[10px] text-gray-500 group-hover:text-gray-400 text-center">
+                              <span className="font-semibold text-violet-400">Klik untuk upload</span> atau drag & drop
+                            </p>
+                          </div>
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                setForm({ ...form, imageFile: file })
+                                setPreview(URL.createObjectURL(file))
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>

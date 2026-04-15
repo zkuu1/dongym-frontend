@@ -19,7 +19,18 @@ export const getAllProduct = async () => {
     const res = await axios.get(`${API}api/product`);
     return res.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to get products");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get products");
   }
 };
 
@@ -71,7 +82,18 @@ export const createProduct = async (payload: any): Promise<ApiResponse<any>> => 
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to create product");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to create product");
   }
 };
 
@@ -90,7 +112,18 @@ export const updateProductById = async (
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to update product");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to update product");
   }
 };
 
@@ -106,6 +139,17 @@ export const deleteProductById = async (id: string): Promise<ApiResponse<any>> =
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to delete product");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to delete product");
   }
 };

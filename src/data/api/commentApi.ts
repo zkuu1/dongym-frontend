@@ -27,7 +27,18 @@ export const getAllComments = async (page = 1, limit = 10): Promise<ApiResponse<
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to get all comments");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get all comments");
   }
 };
 
@@ -37,7 +48,18 @@ export const getCommentsByProduct = async (idProduct: string | number): Promise<
     const response = await axios.get(`${API}api/comments/product/${idProduct}`);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to get product comments");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get product comments");
   }
 };
 
@@ -47,7 +69,18 @@ export const getUserComments = async (idUser: string | number): Promise<ApiRespo
     const response = await axios.get(`${API}api/comments/user/${idUser}`);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to get user comments");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get user comments");
   }
 };
 
@@ -59,7 +92,18 @@ export const getMyComments = async (): Promise<ApiResponse<any>> => {
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to get your comments");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get your comments");
   }
 };
 
@@ -71,7 +115,18 @@ export const createComment = async (idProduct: string | number, payload: { comme
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to create comment");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to create comment");
   }
 };
 
@@ -83,7 +138,18 @@ export const updateComment = async (id: string | number, payload: { comment: str
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to update comment");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to update comment");
   }
 };
 
@@ -95,6 +161,17 @@ export const deleteComment = async (id: string | number): Promise<ApiResponse<an
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to delete comment");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to delete comment");
   }
 };

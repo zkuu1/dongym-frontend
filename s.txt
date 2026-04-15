@@ -1,3 +1,0 @@
-perbaiki logic like dan favorite jika belum login maka akan diarahkan ke logib
-
-perbaiki ui, tambahkan total like pada ui produk, jangan memakai font italic pada nama produk, rapihkan view detail nya juga

@@ -23,7 +23,18 @@ export const getAllCategory = async (): Promise<ApiResponse<any>> => {
       data: response.data?.data ?? [],
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to get categories");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to get categories");
   }
 };
 
@@ -57,7 +68,18 @@ export const createCategory = async (payload: any): Promise<ApiResponse<any>> =>
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to create category");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to create category");
   }
 };
 
@@ -76,7 +98,18 @@ export const updateCategoryById = async (
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to update category");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to update category");
   }
 };
 
@@ -92,6 +125,17 @@ export const deleteCategoryById = async (id: string): Promise<ApiResponse<any>> 
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to delete category");
+    const data = error.response?.data;
+    if (data?.errors) {
+      const detail = Object.entries(data.errors)
+        .map(([key, val]) => {
+          const value = Array.isArray(val) ? val.join(", ") : val;
+          return key === 'general' ? value : `${key}: ${value}`;
+        })
+        .join(" | ");
+      const message = data.message || "Validasi Error";
+      throw new Error(detail.includes(message) ? detail : `${message}: ${detail}`);
+    }
+    throw new Error(data?.message || "Failed to delete category");
   }
 };

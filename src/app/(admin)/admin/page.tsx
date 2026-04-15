@@ -6,7 +6,21 @@ import { getAllProduct } from "@/data/api/productApi";
 import { getAllCategory } from "@/data/api/categoryApi";
 import { getAllMembership } from "@/data/api/membershipApi";
 import { getAllComments } from "@/data/api/commentApi";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { getAllAbsensi } from "@/data/api/absensiApi";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  ResponsiveContainer, 
+  CartesianGrid, 
+  AreaChart, 
+  Area, 
+  // Defs, 
+  // LinearGradient, 
+  // Stop 
+} from "recharts";
 import {
   Users,
   ShoppingBag,
@@ -17,6 +31,7 @@ import {
   Package,
   Dumbbell,
   MessageSquare,
+  Calendar,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -25,17 +40,22 @@ export default function AdminDashboard() {
   const [categoryCount, setCategoryCount] = useState<number | null>(null);
   const [membershipCount, setMembershipCount] = useState<number | null>(null);
   const [commentCount, setCommentCount] = useState<number | null>(null);
+  const [attendanceTrends, setAttendanceTrends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const [usersRes, productsRes, categoriesRes, membershipsRes, commentsRes] = await Promise.allSettled([
+        const [usersRes, productsRes, categoriesRes, membershipsRes, commentsRes, absensiRes] = await Promise.allSettled([
           getAllUser(),
           getAllProduct(),
           getAllCategory(),
           getAllMembership(),
-          getAllComments()
+          getAllComments(),
+          getAllAbsensi()
         ]);
 
         if (usersRes.status === "fulfilled") {
@@ -45,16 +65,47 @@ export default function AdminDashboard() {
           setProductCount(productsRes.value?.data?.length ?? 0);
         }
         if (categoriesRes.status === "fulfilled") {
-           setCategoryCount(categoriesRes.value?.data?.length ?? 0);
+          setCategoryCount(categoriesRes.value?.data?.length ?? 0);
         }
         if (membershipsRes.status === "fulfilled") {
-           setMembershipCount(membershipsRes.value?.data?.length ?? 0);
+          setMembershipCount(membershipsRes.value?.data?.length ?? 0);
         }
         if (commentsRes.status === "fulfilled") {
-           setCommentCount(commentsRes.value?.data?.length ?? 0);
+          setCommentCount(commentsRes.value?.data?.length ?? 0);
         }
+
+        if (absensiRes.status === "fulfilled") {
+          const absensiData = absensiRes.value?.data || [];
+          
+          // Process data for trends (last 7 days)
+          const last7Days = [...Array(7)].map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - i));
+            return d.toISOString().split('T')[0];
+          });
+
+          const trendMap = absensiData.reduce((acc: any, curr: any) => {
+            const date = curr.date?.split('T')[0] || new Date(curr.createdAt).toISOString().split('T')[0];
+            acc[date] = (acc[date] || 0) + 1;
+            return acc;
+          }, {});
+
+          const formattedTrends = last7Days.map(date => ({
+            date: new Date(date).toLocaleDateString('id-ID', { weekday: 'short' }),
+            count: trendMap[date] || 0
+          }));
+
+          setAttendanceTrends(formattedTrends);
+        }
+
+        const rejections = [usersRes, productsRes, categoriesRes, membershipsRes, commentsRes, absensiRes].filter(res => res.status === "rejected");
+        if (rejections.length > 0) {
+          setError("Some data failed to load. Please check your connection or try again.");
+        }
+
       } catch (err) {
         console.error(err);
+        setError("An unexpected error occurred while fetching dashboard data.");
       } finally {
         setLoading(false);
       }
@@ -130,10 +181,33 @@ export default function AdminDashboard() {
     <div className="space-y-8">
 
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-        <p className="text-gray-400 mt-1">Welcome back, Admin — here's what's happening today.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+          <p className="text-gray-400 mt-1">Welcome back, Admin — here's what's happening today.</p>
+        </div>
+        {error && (
+          <button 
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm hover:bg-red-500/20 transition"
+          >
+            <Activity size={16} />
+            Data partial load. Click to refresh
+          </button>
+        )}
       </div>
+
+      {error && (
+        <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl flex items-start gap-4 text-amber-200/80 text-sm backdrop-blur-sm">
+          <div className="p-2 rounded-lg bg-amber-500/20">
+            <Activity size={18} className="text-amber-400" />
+          </div>
+          <div>
+            <p className="font-semibold text-amber-400">Warning: Synchronization Issue</p>
+            <p>{error}</p>
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
@@ -196,24 +270,87 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Overview Chart */}
+      {/* Charts Section */}
       {!loading && (
-        <div className="rounded-2xl border bg-gray-900 border-gray-800 p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-white mb-6">Metrics Overview</h2>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip 
-                  cursor={{ fill: '#374151', opacity: 0.2 }}
-                  contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '0.75rem', color: '#fff' }}
-                  itemStyle={{ color: '#fff' }}
-                />
-                <Bar dataKey="total" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Attendance Trends (Line/Area) */}
+          <div className="rounded-2xl border bg-gray-900 border-gray-800 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-white">Attendance Trends</h2>
+                <p className="text-sm text-gray-400">Activity for the last 7 days</p>
+              </div>
+              <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <Activity size={20} className="text-emerald-400" />
+              </div>
+            </div>
+            <div className="h-72 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={attendanceTrends}>
+                  <defs>
+                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="#9ca3af" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
+                  <YAxis 
+                    stroke="#9ca3af" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    allowDecimals={false} 
+                  />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '0.75rem', color: '#fff' }}
+                    itemStyle={{ color: '#10b981' }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="#10b981" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorCount)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Metrics Overview (Bar) */}
+          <div className="rounded-2xl border bg-gray-900 border-gray-800 p-6 shadow-sm">
+             <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-white">System Overview</h2>
+                <p className="text-sm text-gray-400">Comparison of core resources</p>
+              </div>
+              <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                <Package size={20} className="text-violet-400" />
+              </div>
+            </div>
+            <div className="h-72 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip 
+                    cursor={{ fill: '#374151', opacity: 0.2 }}
+                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '0.75rem', color: '#fff' }}
+                    itemStyle={{ color: '#fff' }}
+                  />
+                  <Bar dataKey="total" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
       )}

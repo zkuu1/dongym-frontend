@@ -20,7 +20,7 @@ import {
 
 const menuItems = [
   {
-    title: "Dashboard",
+    title: "Overview",
     href: "/admin",
     icon: LayoutDashboard,
   },
